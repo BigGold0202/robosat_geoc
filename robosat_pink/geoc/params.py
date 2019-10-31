@@ -283,3 +283,19 @@ class Features:# masks --type --dataset out
         # Outputs:
         # path to output file to store features in [required]
         self.out = out
+
+
+class Merge:# features --threshold out
+    def __init__(self,
+                 features=None,
+                 threshold=None,
+                 out=None):
+        # Inputs:
+        # input masks directory path [required]
+        self.features = features
+        # type of features to extract (i.e class title) [required]
+        self.threshold = threshold
+
+        # Outputs:
+        # path to output file to store features in [required]
+        self.out = out
