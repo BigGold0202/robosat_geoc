@@ -1,3 +1,10 @@
+# Dataset specific common attributes.
+[common]
+
+  # Human representation for classes.
+  classes = ['background', 'parking']
+  
+  
 # RoboSat.pink Configuration
 
 
