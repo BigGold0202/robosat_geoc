@@ -108,7 +108,18 @@
 - <a href="https://github.com/geocompass/robosat_geoc/tree/master/docs/tools.md#rsp-vectorize">`rsp vectorize`</a> Extract simplified GeoJSON features from segmentation masks
 - <a href="https://github.com/geocompass/robosat_geoc/tree/master/docs/tools.md#rsp-info">`rsp info`</a> Print RoboSat.pink version informations
 
-
+### 模型优化
+- 利用robosat.merge 和 features 对预测结果进行规范化，参数调整包括：
+- merge： 
+  - threshold=1（融合阈值，单位：像素）
+- features：
+  - denoise=10（除噪，对要素预处理，单位：像素）
+  - grow=20（填坑，作用类似除噪，单位：像素）
+  - simplify=0.01（新要素与原要素的简化比）
+- 优化效果：
+<p align=center>
+  <a href="https://github.com/geocompass/robosat_geoc"><img src="https://github.com/geocompass/robosat_geoc/blob/master/docs/img/readme/%E6%A8%A1%E5%9E%8B%E4%BC%98%E5%8C%96.png" alt="RoboSat_Geoc buildings segmentation from Imagery" /></a>
+</p>
 
 ## 本项目作者:
 
@@ -118,3 +129,5 @@
 ## 欢迎 Issues
 
 欢迎提一个 [Issue](https://github.com/geocompass/robosat_geoc/issues)
+
+
