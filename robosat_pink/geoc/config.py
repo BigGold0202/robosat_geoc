@@ -1,6 +1,6 @@
 # PostgreSQL Connection String
-POSTGRESQL = "host='localhost' dbname='tdt2018' user='postgres' password='postgres'"
-# POSTGRESQL = "host='172.16.100.140' dbname='tdt2018' user='postgres' password='postgres'"
+# POSTGRESQL = "host='localhost' dbname='tdt2018' user='postgres' password='postgres'"
+POSTGRESQL = "host='172.16.100.140' dbname='tdt2018' user='postgres' password='postgres'"
 
 # building outline PostGIS data table using by training label
 BUILDING_TABLE = "BUIA"

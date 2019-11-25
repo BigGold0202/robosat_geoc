@@ -264,3 +264,38 @@ class Vectorize:
         # Outputs:
         # path to output file to store features in [required]
         self.out = out
+
+
+class Features:# masks --type --dataset out
+    def __init__(self,
+                 masks=None,
+                 type=None,
+                 dataset=None,
+                 out=None):
+        # Inputs:
+        # input masks directory path [required]
+        self.masks = masks
+        # type of features to extract (i.e class title) [required]
+        self.type = type
+        # path to config file [required]
+        self.dataset = dataset
+
+        # Outputs:
+        # path to output file to store features in [required]
+        self.out = out
+
+
+class Merge:# features --threshold out
+    def __init__(self,
+                 features=None,
+                 threshold=None,
+                 out=None):
+        # Inputs:
+        # input masks directory path [required]
+        self.features = features
+        # type of features to extract (i.e class title) [required]
+        self.threshold = threshold
+
+        # Outputs:
+        # path to output file to store features in [required]
+        self.out = out
