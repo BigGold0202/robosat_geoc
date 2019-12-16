@@ -121,26 +121,6 @@
   <a href="https://github.com/geocompass/robosat_geoc"><img src="https://github.com/geocompass/robosat_geoc/blob/master/docs/img/readme/%E6%A8%A1%E5%9E%8B%E4%BC%98%E5%8C%96.png" alt="RoboSat_Geoc buildings segmentation from Imagery" /></a>
 </p>
 
-### 预测优化
-
-训练过程中由于训练样本选择不当发现了过拟合现象，解决方法如下：
-
-- 筛选label和image匹配度高的训练数据（参考 [How to use plain OpenData to create a decent training OpenDataSet](https://github.com/datapink/robosat.pink/blob/master/docs/from_opendata_to_opendataset.md)）
-
-    `rsp compare --fg 5 --maximum_qod 80 选出预测效果差的瓦片号compare_to_remove.txt`
-    
-    `rsp subset --dir training/images --cover compare_to_remove.txt --delete > /dev/null`
-    
-    `rsp subset --dir training/labels --cover compare_to_remove.txt --delete > /dev/null`
-    
-    `rsp subset --dir validation/images --cover compare_to_remove.txt --delete > /dev/null`
-    
-    `rsp subset --dir validation/labels --cover compare_to_remove.txt --delete > /dev/null`
-- 样本数量够大，保证特征分布均衡（城市+农村+高质量影像+低质量影像）
-- 增添新数据要补充到上一次的训练数据中，因为训练模型仅反映上一次训练的数据特征
-
-这样就可以保证训练样本准确反映建筑物整体特征分布，后续训练效果有显著提升
-
 ## 本项目作者:
 
 - 吴灿 [https://github.com/wucangeo](https://github.com/wucangeo)
