@@ -9,7 +9,7 @@ BUILDING_TABLE = "BUIA"
 WMTS_HOST = "http://127.0.0.1:5000/v1/wmts"
 
 # tianditu and google map remote sensing wmts url
-URL_TDT = '''https://t1.tianditu.gov.cn/DataServer?T=img_w&x={x}&y={y}&l={z}&tk=8971e4c7b3640d506c2dc111221af6a0'''
+URL_TDT = '''https://t1.tianditu.gov.cn/DataServer?T=img_w&x={x}&y={y}&l={z}&tk=4830425f5d789b48b967b1062deb8c71'''
 URL_GOOGLE = '''http://ditu.google.cn/maps/vt/lyrs=s&x={x}&y={y}&z={z}'''
 
 # wmts_xyz_proxy port
