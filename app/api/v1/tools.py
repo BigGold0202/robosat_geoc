@@ -34,7 +34,7 @@ def clear_log():
     return jsonify(result)
 
 
-def check_extent(extent, train_or_predict):
+def check_extent(extent, train_or_predict, set_maximum = False):
     result = {
         "code": 1,
         "data": None,
@@ -52,11 +52,14 @@ def check_extent(extent, train_or_predict):
     if "train" in train_or_predict:
         if float(coords[2]) - float(coords[0]) < 0.005 or float(coords[3]) - float(coords[1]) < 0.005:
             result["code"] = 0
-            result["msg"] = "extent to train is too small. training stopped."
+            result["msg"] = "Extent for training is too small. Training stopped."
     elif "predict" in train_or_predict:
         if float(coords[2]) - float(coords[0]) < 0.002 or float(coords[3]) - float(coords[1]) < 0.002:
             result["code"] = 0
-            result["msg"] = "extent to predict is too small. predicting stopped."
+            result["msg"] = "Extent for prediction is too small. Predicting stopped."
+        elif set_maximum and float(coords[2]) - float(coords[0]) > 0.02 or float(coords[3]) - float(coords[1]) > 0.02:
+            result["code"] = 0
+            result["msg"] = "Extent for prediction is too big. Predicting stopped."
     else:
         result["code"] = 0
         result["msg"] = "got wrong params."

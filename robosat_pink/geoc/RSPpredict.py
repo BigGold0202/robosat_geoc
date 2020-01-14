@@ -11,11 +11,11 @@ from robosat_pink.geoc import config as CONFIG, params, utils
 multiprocessing.set_start_method('spawn', True)
 
 
-def main(extent, dataPath, dsPath, map="tdt", auto_delete=False):
+def main(extent, dataPath, dsPath, map="google", auto_delete=False):
     # training or predict checkpoint.pth number
     pthNum = utils.getLastPth(dataPath)
     if pthNum == 0:
-        return None
+        return 'No model was found in directory for prediction'
 
     params_cover = params.Cover(
         bbox=extent,
@@ -25,6 +25,8 @@ def main(extent, dataPath, dsPath, map="tdt", auto_delete=False):
     params_download = params.Download(
         type="XYZ",
         url=CONFIG.WMTS_HOST+"/{z}/{x}/{y}?type="+map,
+        # url='https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        # url='https://b.tiles.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXFhYTA2bTMyeW44ZG0ybXBkMHkifQ.gUGbDOPUN1v1fTs5SeOR4A'
         cover=dsPath + "/cover",
         out=dsPath + "/images",
         timeout=20)
