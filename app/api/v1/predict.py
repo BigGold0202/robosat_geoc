@@ -12,8 +12,8 @@ api = Redprint('predict')
 def predict():
     # check extent
     extent = request.args.get("extent")
-    # result = tools.check_extent(extent, "predict", False)
-    result = tools.check_extent(extent, "predict")
+    result = tools.check_extent(extent, "predict", True)
+    # result = tools.check_extent(extent, "predict")
     if result["code"] == 0:
         return jsonify(result)
 
@@ -22,15 +22,15 @@ def predict():
     datasetPath = SETTING.ROBOSAT_DATASET_PATH
     ts = time.time()
 
-    # dsPredictPath = datasetPath+"/predict_"+str(ts)
-    # geojson = RSPpredict.main(
-    #     # extent, dataPath, dsPredictPath, map="tdt")
-    #     extent, dataPath, dsPredictPath, map="google")
+    dsPredictPath = datasetPath+"/predict_"+str(ts)
+    geojson = RSPpredict.main(
+        # extent, dataPath, dsPredictPath, map="tdt")
+        extent, dataPath, dsPredictPath, map="google")
 
-    dsPredictPath = datasetPath+"/return_predict_"+str(ts)
-    geojson = RSPreturn_predict.main(
-        extent
-        )
+    # dsPredictPath = datasetPath+"/return_predict_"+str(ts)
+    # geojson = RSPreturn_predict.main(
+    #     extent
+    #     )
 
     if not geojson:
         result["code"] = 0
