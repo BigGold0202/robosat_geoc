@@ -4,11 +4,11 @@ import json
 from robosat_pink.geoc import RSPtrain, RSPpredict, utils
 
 
-def train(extent, dataPath, dsPath, epochs=10, map="tdt", auto_delete=False):
+def train(extent, dataPath, dsPath, epochs=10, map="google", auto_delete=False):
     return RSPtrain.main(extent, dataPath, dsPath, epochs, map, auto_delete)
 
 
-def predict(extent, dataPath, dsPath, map="tdt", auto_delete=False):
+def predict(extent, dataPath, dsPath, map="google", auto_delete=False):
     return RSPpredict.main(extent, dataPath, dsPath, map, auto_delete)
 
 

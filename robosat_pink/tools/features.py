@@ -5,8 +5,9 @@ import numpy as np
 from PIL import Image
 from tqdm import tqdm
 
-from robosat.tiles import tiles_from_slippy_map
-from robosat.config import load_config
+from robosat_pink.tiles import tiles_from_slippy_map
+# from robosat.config import load_config
+from robosat_pink.core import load_config
 
 from robosat.features.parking import ParkingHandler
 
@@ -23,10 +24,14 @@ def add_parser(subparser):
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 
-    parser.add_argument("masks", type=str, help="slippy map directory with segmentation masks")
-    parser.add_argument("--type", type=str, required=True, choices=handlers.keys(), help="type of feature to extract")
-    parser.add_argument("--dataset", type=str, required=True, help="path to dataset configuration file")
-    parser.add_argument("out", type=str, help="path to GeoJSON file to store features in")
+    parser.add_argument("masks", type=str,
+                        help="slippy map directory with segmentation masks")
+    parser.add_argument("--type", type=str, required=True,
+                        choices=handlers.keys(), help="type of feature to extract")
+    parser.add_argument("--dataset", type=str, required=True,
+                        help="path to dataset configuration file")
+    parser.add_argument(
+        "out", type=str, help="path to GeoJSON file to store features in")
 
     parser.set_defaults(func=main)
 
@@ -35,7 +40,8 @@ def main(args):
     dataset = load_config(args.dataset)
 
     labels = dataset["common"]["classes"]
-    assert set(labels).issuperset(set(handlers.keys())), "handlers have a class label"
+    assert set(labels).issuperset(
+        set(handlers.keys())), "handlers have a class label"
     index = labels.index(args.type)
 
     handler = handlers[args.type]()

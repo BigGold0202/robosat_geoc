@@ -1,6 +1,7 @@
 import os
-from robosat_pink.tools import cover, download, rasterize, predict, vectorize
-from robosat.tools import feature, merge
+from robosat_pink.tools import cover, download, rasterize, predict, vectorize, merge  # , features
+# from robosat.tools import feature, merge
+
 import time
 import shutil
 import json
@@ -43,38 +44,40 @@ def main(extent, dataPath, dsPath, map="google", auto_delete=False):
     )
     predict.main(params_predict)
 
-    # params_vectorize = params.Vectorize(
-    #     masks=dsPath + "/masks",
-    #     type="Building",
-    #     config=dataPath+"/config.toml",
-    #     out=dsPath + "/vectors.json"
-    # )
-    # vectorize.main(params_vectorize)
-
-
-    params_features = params.Features(
+    params_vectorize = params.Vectorize(
         masks=dsPath + "/masks",
-        type="parking",
-        dataset=dataPath+"/config.toml",
-        out=dsPath + "/features.json"
+        type="Building",
+        config=dataPath+"/config.toml",
+        out=dsPath + "/vectors.json"
     )
-    feature.main(params_features)
+    vectorize.main(params_vectorize)
 
-    # 解析预测结果并返回
-    jsonFile = open(dsPath + "/features.json", 'r')
+    # # 解析预测结果并返回
+    jsonFile = open(dsPath + "/vectors.json", 'r')
     jsonObj = json.load(jsonFile)
 
+    # params_features = params.Features(
+    #     masks=dsPath + "/masks",
+    #     type="parking",
+    #     dataset=dataPath+"/config.toml",
+    #     out=dsPath + "/features.json"
+    # )
+    # features.main(params_features)
 
-    params_merge = params.Merge(
-        features=dsPath + "/features.json",
-        threshold=1,
-        out=dsPath + "/merged_features.json"
-    )
-    merge.main(params_merge)
+    # # 解析预测结果并返回
+    # jsonFile = open(dsPath + "/features.json", 'r')
+    # jsonObj = json.load(jsonFile)
+
+    # params_merge = params.Merge(
+    #     features=dsPath + "/features.json",
+    #     threshold=2,
+    #     out=dsPath + "/merged_features.json"
+    # )
+    # merge.main(params_merge)
 
     # 解析预测结果并返回
-    jsonFile = open(dsPath + "/merged_features.json", 'r')
-    jsonObj = json.load(jsonFile)
+    # jsonFile = open(dsPath + "/merged_features.json", 'r')
+    # jsonObj = json.load(jsonFile)
 
     # if auto_delete:
     #     shutil.rmtree(dsPath)
