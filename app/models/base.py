@@ -3,7 +3,7 @@ from app.libs.error_code import NotFound
 from datetime import datetime
 
 from flask_sqlalchemy import SQLAlchemy as _SQLAlchemy, BaseQuery
-from sqlalchemy import inspect, Column, Integer, SmallInteger, orm
+from sqlalchemy import inspect, Column, Integer, SmallInteger, orm, DateTime
 from contextlib import contextmanager
 
 
@@ -48,21 +48,22 @@ def queryBySQL(sql):
 
 class Base(db.Model):
     __abstract__ = True
-    create_time = Column(Integer)
+    # created_at = Column(DateTime)
     status = Column(SmallInteger, default=1)
 
     def __init__(self):
-        self.create_time = int(datetime.now().timestamp())
+        self.created_at = datetime.now()
+        pass
 
     def __getitem__(self, item):
         return getattr(self, item)
 
-    @property
-    def create_datetime(self):
-        if self.create_time:
-            return datetime.fromtimestamp(self.create_time)
-        else:
-            return None
+    # @property
+    # def created_datetime(self):
+    #     if self.created_at:
+    #         return datetime.fromtimestamp(self.created_at)
+    #     else:
+    #         return None
 
     def set_attrs(self, attrs_dict):
         for key, value in attrs_dict.items():

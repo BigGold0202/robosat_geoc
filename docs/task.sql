@@ -1,0 +1,33 @@
+-- create table
+CREATE TABLE "public"."task" (
+  "task_id" int4 NOT NULL DEFAULT nextval('task_task_id_seq'::regclass),
+  "extent" varchar(255) COLLATE "pg_catalog"."default",
+  "user_id" int4,
+  "state" int2 DEFAULT 1,
+  "status" int2 DEFAULT 1,
+  "created_at" timestamp(6) DEFAULT CURRENT_TIMESTAMP,
+  "updated_at" timestamp(6) DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT "task_pkey" PRIMARY KEY ("task_id")
+)
+;
+ALTER TABLE "public"."task" 
+  OWNER TO "postgres";
+
+-- add COMMENT
+COMMENT ON COLUMN "public"."task"."task_id" IS '自增序列';
+COMMENT ON COLUMN "public"."task"."extent" IS '预测范围';
+COMMENT ON COLUMN "public"."task"."user_id" IS '用户编号';
+COMMENT ON COLUMN "public"."task"."state" IS '当前状态';
+COMMENT ON COLUMN "public"."task"."status" IS '是否删除';
+COMMENT ON COLUMN "public"."task"."created_at" IS '创建时间';
+COMMENT ON COLUMN "public"."task"."updated_at" IS '更新时间';
+
+-- create update function
+CREATE OR REPLACE FUNCTION task_update_timestamp () RETURNS TRIGGER AS $$ BEGIN
+		NEW.updated_at = CURRENT_TIMESTAMP;
+	RETURN NEW;
+END $$ LANGUAGE plpgsql;
+
+-- create trigger on task
+CREATE TRIGGER "task_upd" BEFORE UPDATE ON "public"."task" FOR EACH ROW
+EXECUTE PROCEDURE "public"."task_update_timestamp"();

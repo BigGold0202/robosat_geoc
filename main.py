@@ -1,11 +1,12 @@
 """
  Created by wucan on 2019-10-15.
 """
+from flask_apscheduler import APScheduler
 from werkzeug.exceptions import HTTPException
 from app import create_app
 from app.libs.error import APIException
 from app.libs.error_code import ServerError
-
+from app.api.v1.job import scheduler
 
 app = create_app()
 
@@ -29,4 +30,5 @@ def framework_error(e):
 
 
 if __name__ == '__main__':
+    scheduler.start()
     app.run(host='0.0.0.0', port=5000, debug=False)
