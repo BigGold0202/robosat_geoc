@@ -7,16 +7,16 @@ api = Redprint('wmts')
 
 @api.route('/<z>/<x>/<y>', methods=['GET'])
 def wmts(x, y, z):
-    map = request.args.get("map")
+    map = request.args.get("type")
     if not x or not y or not z:
         return None
-    if map and (map != "tdt" or map != "google"):
-        return "地图类型设置错误"
+    if not map and map != "tdt" and map != "google":
+        return "faild to set map type, neither tianditu nor google"
     url = SETTING.URL_TDT
     url_google = SETTING.URL_GOOGLE
     if map == 'google':
         url = url_google
-    print(url.format(x=x, y=y, z=z))
     image = requests.get(url.format(x=x, y=y, z=z))
 
+    print(url.format(x=x, y=y, z=z))
     return Response(image, mimetype='image/jpeg')

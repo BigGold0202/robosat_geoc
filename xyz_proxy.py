@@ -11,18 +11,18 @@ def hello_world():
 
 @app.route('/v1/wmts/<z>/<x>/<y>', methods=['GET'])
 def wmts(x, y, z):
-    map = request.args.get("map")
+    map = request.args.get("type")
     if not x or not y or not z:
         return None
-    if map and (map != "tdt" or map != "google"):
+    if not map and map != "tdt" and map != "google":
         return "faild to set map type, neither tianditu nor google"
     url = CONFIG.URL_TDT
     url_google = CONFIG.URL_GOOGLE
     if map == 'google':
         url = url_google
-    print(url.format(x=x, y=y, z=z))
     image = requests.get(url.format(x=x, y=y, z=z))
 
+    print(url.format(x=x, y=y, z=z))
     return Response(image, mimetype='image/jpeg')
 
 
