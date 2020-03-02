@@ -1,6 +1,6 @@
 -- create table
 CREATE TABLE "public"."task" (
-  "task_id" int4 NOT NULL DEFAULT nextval('task_task_id_seq'::regclass),
+  "task_id" serial,
   "extent" varchar(255) COLLATE "pg_catalog"."default",
   "user_id" int4,
   "state" int2 DEFAULT 1,
