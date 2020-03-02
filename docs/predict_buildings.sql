@@ -7,7 +7,8 @@ CREATE TABLE "public"."predict_buildings" (
   "status" int2 DEFAULT 1,
   "created_at" timestamp(6) DEFAULT CURRENT_TIMESTAMP,
   "updated_at" timestamp(6) DEFAULT CURRENT_TIMESTAMP,
-  "geom" "public"."geometry"
+  "geom" "public"."geometry",
+  CONSTRAINT "predict_buildings_pkey" PRIMARY KEY ("gid")
 )
 ;
 
