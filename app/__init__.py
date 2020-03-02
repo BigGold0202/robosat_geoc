@@ -13,10 +13,11 @@ def register_blueprints(app):
 def register_plugin(app):
     from app.models.base import db
     from app.api.v1.job import scheduler
+    db.app = app
     db.init_app(app)
     with app.app_context():
-        db.create_all()
-        scheduler = APScheduler(app=app)
+        db.create_all(app=app)
+    scheduler = APScheduler(app=app)
 
 
 # class CustomJSONEncoder(JSONEncoder):
