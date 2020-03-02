@@ -1,7 +1,9 @@
 from sqlalchemy import or_
+from app.models.base import queryBySQL, db as DB
 from app.libs.redprint import Redprint
 from app.models.predict_buildings import PredictBuildings
 from app.models.base import queryBySQL
+from app.models import task as TASK
 from flask import jsonify
 from flask import request
 
@@ -67,3 +69,36 @@ def get(gid):
     row = queryData.fetchone()
     result["data"] = json.loads(row["geojson"])
     return jsonify(result)
+
+
+@api.route('', methods=['POST'])
+def create_buildings(geojsonObj):
+    result = {
+        "code": 1,
+        "data": None,
+        "msg": "ok"
+    }
+    # check params
+    if request.json:
+        paramsDic = request.json
+        params = json.loads(json.dumps(paramsDic))
+        geojson = params['geojson']
+    else:
+        geojson = geojsonObj
+
+    buildings = []
+    for feature in geojson["features"]:
+        # featureDump = json.dumps(feature)
+        # newFeat = '{"type":"FeatureCollection","features":['+featureDump+']}'
+
+        # newFeature = json.loads(newFeat)
+        newBuild = TASK()
+        newBuild.task_id = feature["properties"]['task_id']
+        newBuild.extent = feature["properties"]['extent']
+        newBuild.user_id = feature["properties"]['user_id']
+        buildings.append(newBuild)
+
+    # insert into
+    with DB.auto_commit():
+        DB.session.bulk_save_objects(buildings)
+        return jsonify(result)
