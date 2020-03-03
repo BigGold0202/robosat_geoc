@@ -146,19 +146,15 @@ def get_one_job():
     sql = '''SELECT task_id, extent, user_id, state, created_at, updated_at from task WHERE STATE =1 ORDER BY created_at ASC LIMIT 1'''
     queryData = queryBySQL(sql)
     row = queryData.fetchone()
+    if row:
+        return row
+    else:
+        return None
 
 
-def start_job(task_id):
+def do_job(task_id, state):
     with DB.auto_commit():
         task = TASK.query.filter_by(task_id=task_id).first_or_404()
         if task:
-            task.state = 2
-            DB.session.add(task)
-
-
-def done_job(task_id):
-    with DB.auto_commit():
-        task = TASK.query.filter_by(task_id=task_id).first_or_404()
-        if task:
-            task.state = 3
+            task.state = state
             DB.session.add(task)

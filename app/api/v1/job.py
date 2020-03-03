@@ -2,7 +2,7 @@ import json
 from flask import jsonify, request
 from flask_apscheduler import APScheduler
 from app.models.base import queryBySQL, db as DB
-from app.api.v1 import task
+from app.api.v1 import task as TASK, predict as PREDICT
 from app.libs.redprint import Redprint
 import json
 
@@ -11,22 +11,27 @@ api = Redprint('job')
 scheduler = APScheduler()
 
 
-# @scheduler.task(trigger='interval', id='task_job', seconds=5)
-# def task_job():
-#     task.start_job(2)
-#     print('hello world')
+@scheduler.task(trigger='interval', id='predict_job', seconds=2)
+def task_job():
+    newTask = TASK.get_one_job()
+    if not newTask:
+        return
+    TASK.do_job(newTask.task_id, 2)  # update task state
+    PREDICT.predict_job(newTask)
+
+    print('start one task,task_id:', newTask.task_id)
 
 
 @api.route('/pause', methods=['GET'])
-def pause_job():  # 暂停
-    job_id = request.args.get('id')
+def pause_job(id):  # 暂停
+    job_id = request.args.get('id') or id
     scheduler.pause_job(str(job_id))
     return "pause success!"
 
 
 @api.route('/resume', methods=['GET'])
-def resume_job():  # 恢复
-    job_id = request.args.get('id')
+def resume_job(id):  # 恢复
+    job_id = request.args.get('id') or id
     scheduler.resume_job(str(job_id))
     return "Success!"
 
