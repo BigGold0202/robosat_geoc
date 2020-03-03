@@ -10,3 +10,4 @@ class task(Base):
     user_id = Column(String(50))
     state = Column(Integer, default=1)
     status = Column(Integer, default=1)
+    handler = Column(Integer, default=1)
