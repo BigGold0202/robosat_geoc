@@ -13,13 +13,22 @@ scheduler = APScheduler()
 
 @scheduler.task(trigger='interval', id='predict_job', seconds=2)
 def task_job():
+    isDoingJob = TASK.doing_job()
+    if isDoingJob:
+        return
     newTask = TASK.get_one_job()
     if not newTask:
         return
+    # start one job
+    print("start one job.")
     TASK.do_job(newTask.task_id, 2)  # update task state
-    PREDICT.predict_job(newTask)
-
-    print('start one task,task_id:', newTask.task_id)
+    result = PREDICT.predict_job(newTask)
+    if result['code'] == 0:
+        TASK.do_job(newTask.task_id, 4)  # 任务失败
+        print('done job faild！')
+    else:
+        TASK.do_job(newTask.task_id, 3)  # 任务完成
+        print('done job success!')
 
 
 @api.route('/pause', methods=['GET'])

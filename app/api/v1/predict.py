@@ -49,14 +49,12 @@ def predict_job(task):
     extent = task.extent
     result = TOOLS.check_extent(extent, "predict", True)
     if result["code"] == 0:
-        TASK.do_job(task.task_id, 4)  # 任务失败
         return jsonify(result)
 
     # 使用robosat_geoc开始预测
     dataPath = SETTING.ROBOSAT_DATA_PATH
     datasetPath = SETTING.ROBOSAT_DATASET_PATH
     ts = time.time()
-    JOB.pause_job('predict_job')
     dsPredictPath = datasetPath+"/predict_"+str(ts)
     geojson = RSPpredict.main(
         extent, dataPath, dsPredictPath, map="google")
@@ -64,7 +62,7 @@ def predict_job(task):
     if not geojson:
         result["code"] = 0
         result["msg"] = "预测失败"
-        return jsonify(result)
+        return result
     # 给geojson添加properties
     for feature in geojson["features"]:
         feature["properties"] = {
@@ -74,9 +72,10 @@ def predict_job(task):
         }
 
     # 插入数据库
-    BUILDINGS.create_buildings(geojson)
+    result_create = BUILDINGS.insert_buildings(geojson)
+    if not result_create:
+        result["code"] = 0
+        result["msg"] = "预测失败"
+        return result
 
-    result["data"] = geojson
-    TASK.do_job(task.task_id, 3)  # 任务完成
-    JOB.resume_job('predict_job')
-    return jsonify(result)
+    return result

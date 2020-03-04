@@ -3,6 +3,7 @@ from flask import jsonify, request
 from app.models.base import queryBySQL, db as DB
 from app.models.task import task as TASK
 from app.libs.redprint import Redprint
+from app.config import setting as CONFIG
 # from app.api.v1.job import scheduler
 import json
 
@@ -158,3 +159,14 @@ def do_job(task_id, state):
         if task:
             task.state = state
             DB.session.add(task)
+
+
+def doing_job():
+    IPADDR = CONFIG.IPADDR
+    sql = '''SELECT * FROM "task" where state='2' and handler='''+"'" + IPADDR + "'"
+    queryData = queryBySQL(sql)
+    row = queryData.fetchone()
+    if row:
+        return True
+    else:
+        return False
