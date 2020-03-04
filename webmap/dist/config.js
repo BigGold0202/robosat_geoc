@@ -15,17 +15,15 @@ const CONFIG = {
     }
   },
   TDT_TILE: {
-    "type": "raster",
-    "tiles": [
-      "http://t0.tianditu.gov.cn/DataServer?T=img_w&x={x}&y={y}&l={z}&tk=5141662c19b5bf0a6f856300eda5e8a4"
+    type: "raster",
+    tiles: [
+      "http://t0.tianditu.gov.cn/DataServer?T=img_w&x={x}&y={y}&l={z}&tk=d47b4c1d699be4ed6a68132338b741b2"
     ],
-    "tileSize": 256
+    tileSize: 256
   },
   GOOGLE_TILE: {
-    "type": "raster",
-    "tiles": [
-      "http://ditu.google.cn/maps/vt/lyrs=s&x={x}&y={y}&z={z}"
-    ],
-    "tileSize": 256
-  },
+    type: "raster",
+    tiles: ["http://ditu.google.cn/maps/vt/lyrs=s&x={x}&y={y}&z={z}"],
+    tileSize: 256
+  }
 };

@@ -18,7 +18,8 @@ import json
 import mercantile
 import supermercado
 
-warnings.simplefilter("ignore", UserWarning)  # To prevent rasterio NotGeoreferencedWarning
+# To prevent rasterio NotGeoreferencedWarning
+warnings.simplefilter("ignore", UserWarning)
 
 
 def tile_pixel_to_location(tile, dx, dy):
@@ -59,7 +60,8 @@ def tiles_from_dir(root, xyz=True, xyz_path=False):
         paths = glob.glob(os.path.join(root, "[0-9]*/[0-9]*/[0-9]*.*"))
 
         for path in paths:
-            tile = re.match(os.path.join(root, "(?P<z>[0-9]+)/(?P<x>[0-9]+)/(?P<y>[0-9]+).+"), path)
+            tile = re.match(os.path.join(
+                root, "(?P<z>[0-9]+)/(?P<x>[0-9]+)/(?P<y>[0-9]+).+"), path)
             if not tile:
                 continue
 
@@ -78,7 +80,8 @@ def tiles_from_dir(root, xyz=True, xyz_path=False):
 def tile_from_xyz(root, x, y, z):
     """Retrieve a single tile from a slippy map dir."""
 
-    path = glob.glob(os.path.join(os.path.expanduser(root), str(z), str(x), str(y) + ".*"))
+    path = glob.glob(os.path.join(os.path.expanduser(
+        root), str(z), str(x), str(y) + ".*"))
     if not path:
         return None
 
@@ -116,15 +119,20 @@ def tiles_to_geojson(tiles, union=True):
     geojson = '{"type":"FeatureCollection","features":['
 
     if union:  # smaller tiles union geometries (but losing properties)
-        tiles = [str(tile.z) + "-" + str(tile.x) + "-" + str(tile.y) + "\n" for tile in tiles]
+        tiles = [str(tile.z) + "-" + str(tile.x) + "-" +
+                 str(tile.y) + "\n" for tile in tiles]
         for feature in supermercado.uniontiles.union(tiles, True):
-            geojson += json.dumps(feature) if first else "," + json.dumps(feature)
+            geojson += json.dumps(feature) if first else "," + \
+                json.dumps(feature)
             first = False
     else:  # keep each tile geometry and properties (but fat)
         for tile in tiles:
-            prop = '"properties":{{"x":{},"y":{},"z":{}}}'.format(tile.x, tile.y, tile.z)
-            geom = '"geometry":{}'.format(json.dumps(mercantile.feature(tile, precision=6)["geometry"]))
-            geojson += '{}{{"type":"Feature",{},{}}}'.format("," if not first else "", geom, prop)
+            prop = '"properties":{{"x":{},"y":{},"z":{}}}'.format(
+                tile.x, tile.y, tile.z)
+            geom = '"geometry":{}'.format(json.dumps(
+                mercantile.feature(tile, precision=6)["geometry"]))
+            geojson += '{}{{"type":"Feature",{},{}}}'.format(
+                "," if not first else "", geom, prop)
             first = False
 
     geojson += "]}"
@@ -145,8 +153,10 @@ def tile_image_from_file(path, bands=None):
     image = None
     for i in raster.indexes if bands is None else bands:
         data_band = raster.read(i)
-        data_band = data_band.reshape(data_band.shape[0], data_band.shape[1], 1)  # H,W -> H,W,C
-        image = np.concatenate((image, data_band), axis=2) if image is not None else data_band
+        data_band = data_band.reshape(
+            data_band.shape[0], data_band.shape[1], 1)  # H,W -> H,W,C
+        image = np.concatenate(
+            (image, data_band), axis=2) if image is not None else data_band
 
     return image
 
@@ -155,7 +165,8 @@ def tile_image_to_file(root, tile, image):
     """ Write an image tile on disk. """
 
     root = os.path.expanduser(root)
-    out_path = os.path.join(root, str(tile.z), str(tile.x)) if isinstance(tile, mercantile.Tile) else root
+    out_path = os.path.join(root, str(tile.z), str(
+        tile.x)) if isinstance(tile, mercantile.Tile) else root
     os.makedirs(out_path, exist_ok=True)
 
     if image.shape[2] > 3:
@@ -163,7 +174,8 @@ def tile_image_to_file(root, tile, image):
     else:
         ext = "webp"
 
-    filename = "{}.{}".format(str(tile.y), ext) if isinstance(tile, mercantile.Tile) else "{}.{}".format(tile, ext)
+    filename = "{}.{}".format(str(tile.y), ext) if isinstance(
+        tile, mercantile.Tile) else "{}.{}".format(tile, ext)
     return cv2.imwrite(os.path.join(out_path, filename), cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
 
 
@@ -180,7 +192,8 @@ def tile_label_to_file(root, tile, palette, label, append=False):
     """ Write a label tile on disk. """
 
     root = os.path.expanduser(root)
-    dir_path = os.path.join(root, str(tile.z), str(tile.x)) if isinstance(tile, mercantile.Tile) else root
+    dir_path = os.path.join(root, str(tile.z), str(
+        tile.x)) if isinstance(tile, mercantile.Tile) else root
     path = os.path.join(dir_path, "{}.png".format(str(tile.y)))
 
     if len(label.shape) == 3:  # H,W,C -> H,W
@@ -189,7 +202,8 @@ def tile_label_to_file(root, tile, palette, label, append=False):
 
     if append and os.path.isfile(path):
         previous = tile_label_from_file(path)
-        assert previous is not None, "Unable to open existing label: {}".format(path)
+        assert previous is not None, "Unable to open existing label: {}".format(
+            path)
         label = np.uint8(previous + label)
     else:
         os.makedirs(dir_path, exist_ok=True)
@@ -214,3 +228,41 @@ def tile_image_from_url(requests_session, url, timeout=10):
 
     except Exception:
         return None
+
+
+def tiles_from_slippy_map(root):
+    """Loads files from an on-disk slippy map directory structure.
+
+    Args:
+      root: the base directory with layout `z/x/y.*`.
+
+    Yields:
+      The mercantile tiles and file paths from the slippy map directory.
+    """
+
+    # The Python string functions (.isdigit, .isdecimal, etc.) handle
+    # unicode codepoints; we only care about digits convertible to int
+    def isdigit(v):
+        try:
+            _ = int(v)  # noqa: F841
+            return True
+        except ValueError:
+            return False
+
+    for z in os.listdir(root):
+        if not isdigit(z):
+            continue
+
+        for x in os.listdir(os.path.join(root, z)):
+            if not isdigit(x):
+                continue
+
+            for name in os.listdir(os.path.join(root, z, x)):
+                y = os.path.splitext(name)[0]
+
+                if not isdigit(y):
+                    continue
+
+                tile = mercantile.Tile(x=int(x), y=int(y), z=int(z))
+                path = os.path.join(root, z, x, name)
+                yield tile, path

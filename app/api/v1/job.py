@@ -1,0 +1,70 @@
+import json
+from flask import jsonify, request
+from flask_apscheduler import APScheduler
+from app.models.base import queryBySQL, db as DB
+from app.api.v1 import task as TASK, predict as PREDICT
+from app.libs.redprint import Redprint
+import json
+
+api = Redprint('job')
+
+scheduler = APScheduler()
+
+
+@scheduler.task(trigger='interval', id='predict_job', seconds=2)
+def task_job():
+    isDoingJob = TASK.doing_job()
+    if isDoingJob:
+        return
+    newTask = TASK.get_one_job()
+    if not newTask:
+        return
+    # start one job
+    print("start one job.")
+    TASK.do_job(newTask.task_id, 2)  # update task state
+    result = PREDICT.predict_job(newTask)
+    if result['code'] == 0:
+        TASK.do_job(newTask.task_id, 4)  # 任务失败
+        print('done job faild！')
+    else:
+        TASK.do_job(newTask.task_id, 3)  # 任务完成
+        print('done job success!')
+
+
+@api.route('/pause', methods=['GET'])
+def pause_job(id):  # 暂停
+    job_id = request.args.get('id') or id
+    scheduler.pause_job(str(job_id))
+    return "pause success!"
+
+
+@api.route('/resume', methods=['GET'])
+def resume_job(id):  # 恢复
+    job_id = request.args.get('id') or id
+    scheduler.resume_job(str(job_id))
+    return "Success!"
+
+
+@api.route('/get_jobs', methods=['GET'])
+def get_task():  # 获取
+    # job_id = request.args.get('id')
+    jobs = scheduler.get_jobs()
+    print(jobs)
+    return 'jobs:'+str(jobs)
+
+
+@api.route('/remove_job', methods=['GET'])
+def remove_job():  # 移除
+    job_id = request.args.get('id')
+    scheduler.remove_job(str(job_id))
+    return 'remove success'
+
+# /add_job?id=2
+@api.route('/add_job', methods=['GET'])
+def add_task():
+    data = request.args.get('id')
+    if data == '1':
+        # trigger='cron' 表示是一个定时任务
+        scheduler.add_job(func=task_job, id='1', args=(1, 1), trigger='cron', day_of_week='0-6', hour=18, minute=24,
+                          second=10, replace_existing=True)
+    return 'sucess'

@@ -7,22 +7,16 @@
   <a href="https://github.com/geocompass/robosat_geoc"><img src="https://raw.githubusercontent.com/geocompass/robosat_geoc/master/docs/img/readme/top_example.jpeg" alt="RoboSat_Geoc buildings segmentation from Imagery" /></a>
 </p>
 
-
-
 ## 简介：
 
 `RoboSat.geoc` 由 [mapbox/robosat](https://github.com/mapbox/robosat) 及 [Robosat.pink](https://github.com/datapink/robosat.pink) fork 而来。
 
 利用深度学习工具，可以很方便的使用标准 WMTS 影像对建筑物轮廓提取进行训练和预测。
 
-
-
 ## 目的：
 
 - `Mapbox/Robosat` 是非常不错的建筑物提取工具，`Robosat.pink` 对其做了重构和改造，使其易用性得到了提升。
 - `Robosat.geoc` 在 `Robosat.pink` 的基础上，做了自动化和工程化改造，并可以结合 [rs_buildings_extraction](https://github.com/geocompass/rs_buildings_extraction) ，使用可视化界面和接口的方式进行训练和预测，很方便的用于生产环境。
-
-
 
 ## 主要功能：
 
@@ -41,8 +35,6 @@
 - 简化调试方式，仅需提供待训练或预测的范围（`extent`）
 - 自动化训练限定为 `PostgreSQL + PostGIS` 数据源作为深度学习标注
 
-
-
 ## 说明文档:
 
 ### 训练数据准备：
@@ -54,7 +46,7 @@
 
 - 对于 MacOS 或 Linux：
   - 下载代码：`git clone https://github.com/geocompass/robosat_geoc.git`
-  - 安装依赖：`python install -r requirements.txt` （若使用 Anaconda 需要注意 python 路径，后同）
+  - 安装依赖：`pip install -r requirements.txt` （若使用 Anaconda 需要注意 python 路径，后同）
 - 对于 Windows：
   - 在 Windows 安装依赖时会报 `GLAL` 相关错误，目前没有比较好的解决办法
   - 建议使用 WSL，[在 Windows 中安装 Ubuntu SubLinux](https://docs.microsoft.com/zh-cn/windows/wsl/install-win10)
@@ -82,8 +74,7 @@
 - 构建：`python setup.py build`
 - 安装：`python setup.py install`
 - 在工程中调用：`from robosat_pink.geoc import RSPtrain` & `from robosat_pink.geoc import RSPpredict`
-
-
+- `Shapely`安装：`pip install shapely==1.7.0 -U` `pip install shapely==1.6.4.post2 -U`
 
 ## RoboSat.pink 使用教程
 
@@ -109,17 +100,18 @@
 - <a href="https://github.com/geocompass/robosat_geoc/tree/master/docs/tools.md#rsp-info">`rsp info`</a> Print RoboSat.pink version informations
 
 ### 模型优化
-- 利用robosat.merge 和 features 对预测结果进行规范化，参数调整包括：
-- merge： 
+
+- 利用 robosat.merge 和 features 对预测结果进行规范化，参数调整包括：
+- merge：
   - threshold=1（融合阈值，单位：像素）
 - features：
   - denoise=10（除噪，对要素预处理，单位：像素）
   - grow=20（填坑，作用类似除噪，单位：像素）
   - simplify=0.01（新要素与原要素的简化比）
 - 优化效果：
-<p align=center>
-  <a href="https://github.com/geocompass/robosat_geoc"><img src="https://github.com/geocompass/robosat_geoc/blob/master/docs/img/readme/%E6%A8%A1%E5%9E%8B%E4%BC%98%E5%8C%96.png" alt="RoboSat_Geoc buildings segmentation from Imagery" /></a>
-</p>
+  <p align=center>
+    <a href="https://github.com/geocompass/robosat_geoc"><img src="https://github.com/geocompass/robosat_geoc/blob/master/docs/img/readme/%E6%A8%A1%E5%9E%8B%E4%BC%98%E5%8C%96.png" alt="RoboSat_Geoc buildings segmentation from Imagery" /></a>
+  </p>
 
 ## 本项目作者:
 
@@ -129,5 +121,3 @@
 ## 欢迎 Issues
 
 欢迎提一个 [Issue](https://github.com/geocompass/robosat_geoc/issues)
-
-

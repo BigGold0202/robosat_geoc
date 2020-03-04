@@ -1,6 +1,6 @@
 import os
 from robosat_pink.tools import cover, download, rasterize, predict, vectorize
-from robosat.tools import feature, merge
+# from robosat.tools import feature, merge
 import time
 import shutil
 import json
@@ -51,7 +51,6 @@ def main(extent, dataPath, dsPath, map="google", auto_delete=False):
     # )
     # vectorize.main(params_vectorize)
 
-
     # params_features = params.Features(
     #     masks=dsPath + "/masks",
     #     type="parking",
@@ -64,7 +63,6 @@ def main(extent, dataPath, dsPath, map="google", auto_delete=False):
     # jsonFile = open(dsPath + "/features.json", 'r')
     # jsonObj = json.load(jsonFile)
 
-
     # params_merge = params.Merge(
     #     features=dsPath + "/features.json",
     #     threshold=1,
@@ -72,15 +70,15 @@ def main(extent, dataPath, dsPath, map="google", auto_delete=False):
     # )
     # merge.main(params_merge)
 
-    params_subset_masks = params.Subset(
-        dir=dsPath+'/masks',
-        cover=dsPath+'/cover',
-        out=dsPath+'/masks'
-    )
-    subset.main(params_subset_masks)
+    # params_subset_masks = params.Subset(
+    #     dir=dsPath+'/masks',
+    #     cover=dsPath+'/cover',
+    #     out=dsPath+'/masks'
+    # )
+    # subset.main(params_subset_masks)
 
-    # img to json
-    out = subset_features.json
+    # # img to json
+    # out = subset_features.json
 
     # 解析预测结果并返回
     jsonFile = open(dsPath + "/merged_features.json", 'r')
