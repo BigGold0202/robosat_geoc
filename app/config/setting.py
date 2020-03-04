@@ -1,3 +1,4 @@
+from app.libs import utils as UTILS
 TOKEN_EXPIRATION = 30 * 24 * 3600
 
 # building outline PostGIS data table using by training label
@@ -13,3 +14,6 @@ ROBOSAT_DATA_PATH = "data"
 
 # dataset to training or predicting
 ROBOSAT_DATASET_PATH = "dataset"
+
+# ip address
+IPADDR = UTILS.get_host_ip()
