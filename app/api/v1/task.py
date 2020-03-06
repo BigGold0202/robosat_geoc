@@ -9,7 +9,6 @@ import json
 
 api = Redprint('task')
 
-
 @api.route('', methods=['GET'])
 def get_task_list():
     result = {
@@ -17,9 +16,11 @@ def get_task_list():
         "data": None,
         "msg": "ok"
     }
+    # code = request.args.get('code')
     page = request.args.get('page') or '1'
     count = request.args.get('count') or '10'
-    state = request.args.get('state')
+    state = request.args.get('state') 
+    user_id = request.args.get('code') or '1'
     # check params
     if not page.isdigit():
         result["code"] = 0
@@ -29,9 +30,15 @@ def get_task_list():
         result["code"] = 0
         result["msg"] = "count not numbers"
         return jsonify(result)
-
+    if not user_id.isdigit():
+        result["code"] = 0
+        result["msg"] = "user_id not numbers"
+        return jsonify(result)
     start = (int(page) - 1) * int(count)
-    sql = '''SELECT task_id, extent, user_id, state, created_at, updated_at from task WHERE 1=1 '''
+    # sql = '''SELECT task_id, extent, user_id, state, created_at, updated_at from task WHERE 1=1 '''
+    sql = '''SELECT task_id, extent, user_id, state, created_at, updated_at from task WHERE 1=1'''
+    # AND user_id={user_id}
+    #and code = {code}
     if state:
         sql = sql + " AND state={state}"
     sql = sql + ''' ORDER BY updated_at desc LIMIT {count} OFFSET {start}'''
@@ -82,13 +89,13 @@ def create_task():
     paramsDic = request.json
     params = json.loads(json.dumps(paramsDic))
     extent = params['extent']
-    user_id = params['user_id']
+    user_id = params['code']
 
     # insert into
     with DB.auto_commit():
         task = TASK()
         task.extent = extent
-        task.user_id = user_id
+        task.user_id = user_id       
         DB.session.add(task)
         return jsonify(result)
 
