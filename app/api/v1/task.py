@@ -35,12 +35,11 @@ def get_task_list():
         result["msg"] = "user_id not numbers"
         return jsonify(result)
     start = (int(page) - 1) * int(count)
-    # sql = '''SELECT task_id, extent, user_id, state, created_at, updated_at from task WHERE 1=1 '''
-    sql = '''SELECT task_id, extent, user_id, state, created_at, updated_at from task WHERE 1=1'''
-    # AND user_id={user_id}
-    #and code = {code}
+    sql = '''SELECT task_id, extent, user_id, state, created_at, updated_at from task WHERE 1=1 '''
+    if user_id:
+        sql = sql + ''' AND user_id='''+"'"+user_id+"'"
     if state:
-        sql = sql + " AND state={state}"
+        sql = sql + ''' AND state='''+"'"+state+"'"
     sql = sql + ''' ORDER BY updated_at desc LIMIT {count} OFFSET {start}'''
     queryData = queryBySQL(sql.format(start=start, count=count))
     if not queryData:
@@ -98,7 +97,6 @@ def create_task():
         task.user_id = user_id       
         DB.session.add(task)
         return jsonify(result)
-
 
 @api.route('/<task_id>', methods=['POST'])
 def update_task(task_id):
