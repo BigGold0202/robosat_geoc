@@ -3,11 +3,11 @@ from flask import jsonify, request
 from app.models.base import queryBySQL, db as DB
 from app.models.task import task as TASK
 from app.libs.redprint import Redprint
+from app.config import setting as CONFIG
 # from app.api.v1.job import scheduler
 import json
 
 api = Redprint('task')
-
 
 @api.route('', methods=['GET'])
 def get_task_list():
@@ -16,9 +16,11 @@ def get_task_list():
         "data": None,
         "msg": "ok"
     }
+    # code = request.args.get('code')
     page = request.args.get('page') or '1'
     count = request.args.get('count') or '10'
-    state = request.args.get('state')
+    state = request.args.get('state') 
+    user_id = request.args.get('code') or '1'
     # check params
     if not page.isdigit():
         result["code"] = 0
@@ -28,11 +30,16 @@ def get_task_list():
         result["code"] = 0
         result["msg"] = "count not numbers"
         return jsonify(result)
-
+    if not user_id.isdigit():
+        result["code"] = 0
+        result["msg"] = "user_id not numbers"
+        return jsonify(result)
     start = (int(page) - 1) * int(count)
     sql = '''SELECT task_id, extent, user_id, state, created_at, updated_at from task WHERE 1=1 '''
+    if user_id:
+        sql = sql + ''' AND user_id='''+"'"+user_id+"'"
     if state:
-        sql = sql + " AND state={state}"
+        sql = sql + ''' AND state='''+"'"+state+"'"
     sql = sql + ''' ORDER BY updated_at desc LIMIT {count} OFFSET {start}'''
     queryData = queryBySQL(sql.format(start=start, count=count))
     if not queryData:
@@ -81,16 +88,15 @@ def create_task():
     paramsDic = request.json
     params = json.loads(json.dumps(paramsDic))
     extent = params['extent']
-    user_id = params['user_id']
+    user_id = params['code']
 
     # insert into
     with DB.auto_commit():
         task = TASK()
         task.extent = extent
-        task.user_id = user_id
+        task.user_id = user_id       
         DB.session.add(task)
         return jsonify(result)
-
 
 @api.route('/<task_id>', methods=['POST'])
 def update_task(task_id):
@@ -158,3 +164,14 @@ def do_job(task_id, state):
         if task:
             task.state = state
             DB.session.add(task)
+
+
+def doing_job():
+    IPADDR = CONFIG.IPADDR
+    sql = '''SELECT * FROM "task" where state='2' and handler='''+"'" + IPADDR + "'"
+    queryData = queryBySQL(sql)
+    row = queryData.fetchone()
+    if row:
+        return True
+    else:
+        return False

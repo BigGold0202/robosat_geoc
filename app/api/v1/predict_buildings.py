@@ -3,9 +3,9 @@ from app.models.base import queryBySQL, db as DB
 from app.libs.redprint import Redprint
 from app.models.predict_buildings import PredictBuildings
 from app.models.base import queryBySQL
-from app.models import task as TASK
 from flask import jsonify
 from flask import request
+from geomet import wkb
 
 import json
 
@@ -92,7 +92,7 @@ def create_buildings(geojsonObj):
         # newFeat = '{"type":"FeatureCollection","features":['+featureDump+']}'
 
         # newFeature = json.loads(newFeat)
-        newBuild = TASK()
+        newBuild = PredictBuildings()
         newBuild.task_id = feature["properties"]['task_id']
         newBuild.extent = feature["properties"]['extent']
         newBuild.user_id = feature["properties"]['user_id']
@@ -102,3 +102,24 @@ def create_buildings(geojsonObj):
     with DB.auto_commit():
         DB.session.bulk_save_objects(buildings)
         return jsonify(result)
+
+
+def insert_buildings(geojsonObj):
+    if not geojsonObj:
+        return False
+
+    # geojson to buildings array
+    buildings = []
+    for feature in geojsonObj["features"]:
+        geometry = feature['geometry']
+        newBuild = PredictBuildings()
+        newBuild.task_id = feature["properties"]['task_id']
+        newBuild.extent = feature["properties"]['extent']
+        newBuild.user_id = feature["properties"]['user_id']
+        newBuild.geom = wkb.dumps(geometry).hex()
+        buildings.append(newBuild)
+
+    # insert into
+    with DB.auto_commit():
+        DB.session.bulk_save_objects(buildings)
+        return True
