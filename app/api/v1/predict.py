@@ -49,7 +49,7 @@ def predict_job(task):
     extent = task.extent
     result = TOOLS.check_extent(extent, "predict", True)
     if result["code"] == 0:
-        return jsonify(result)
+        return result
 
     # 使用robosat_geoc开始预测
     dataPath = SETTING.ROBOSAT_DATA_PATH
