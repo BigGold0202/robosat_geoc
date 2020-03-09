@@ -9,74 +9,7 @@ import json
 
 api = Redprint('task')
 
-@api.route('', methods=['GET'])
-def get_task_list():
-    result = {
-        "code": 1,
-        "data": None,
-        "msg": "ok"
-    }
-    # code = request.args.get('code')
-    page = request.args.get('page') or '1'
-    count = request.args.get('count') or '10'
-    state = request.args.get('state') 
-    user_id = request.args.get('code') or '1'
-    # check params
-    if not page.isdigit():
-        result["code"] = 0
-        result["msg"] = "page not numbers"
-        return jsonify(result)
-    if not count.isdigit():
-        result["code"] = 0
-        result["msg"] = "count not numbers"
-        return jsonify(result)
-    if not user_id.isdigit():
-        result["code"] = 0
-        result["msg"] = "user_id not numbers"
-        return jsonify(result)
-    start = (int(page) - 1) * int(count)
-    sql = '''SELECT task_id, extent, user_id, state, created_at, updated_at from task WHERE 1=1 '''
-    if user_id:
-        sql = sql + ''' AND user_id='''+"'"+user_id+"'"
-    if state:
-        sql = sql + ''' AND state='''+"'"+state+"'"
-    sql = sql + ''' ORDER BY updated_at desc LIMIT {count} OFFSET {start}'''
-    queryData = queryBySQL(sql.format(start=start, count=count))
-    if not queryData:
-        result["code"] = 0
-        result["msg"] = "查询语句有问题"
-        return jsonify(result)
-    rows = queryData.fetchall()
-    result["data"] = rows
-
-    return jsonify(result)
-
-
-@api.route('/<task_id>', methods=['GET'])
-def get_task_by_id(task_id):
-    result = {
-        "code": 1,
-        "data": None,
-        "msg": "ok"
-    }
-    # check params
-    if not task_id.isdigit():
-        result["code"] = 0
-        result["msg"] = "task_id not numbers"
-        return jsonify(result)
-
-    sql = '''SELECT task_id, extent, user_id, state, created_at, updated_at from task  WHERE task_id = {task_id}'''
-    queryData = queryBySQL(sql.format(task_id=task_id))
-    if not queryData:
-        result["code"] = 0
-        result["msg"] = "查询语句有问题"
-        return jsonify(result)
-    row = queryData.fetchone()
-    result["data"] = row
-
-    return jsonify(result)
-
-
+# create task
 @api.route('', methods=['POST'])
 def create_task():
     result = {
@@ -87,46 +20,133 @@ def create_task():
     # check params
     paramsDic = request.json
     params = json.loads(json.dumps(paramsDic))
+    if not params:
+        result["code"] = 0
+        result["msg"] = "no params"
+        return jsonify(result)
     extent = params['extent']
-    user_id = params['code']
-
+    user_id = params['user_id']
+    area_code = params['area_code']
     # insert into
     with DB.auto_commit():
         task = TASK()
         task.extent = extent
-        task.user_id = user_id       
+        task.user_id = user_id     
+        task.area_code = area_code     
+      
         DB.session.add(task)
         return jsonify(result)
 
-@api.route('/<task_id>', methods=['POST'])
-def update_task(task_id):
-    result = {
-        "code": 1,
-        "data": None,
-        "msg": "ok"
-    }
-    # check params
-    if not task_id.isdigit():
-        result["code"] = 0
-        result["msg"] = "task_id not numbers"
-        return jsonify(result)
-    paramsDic = request.json
-    params = json.loads(json.dumps(paramsDic))
+# # get task list of {count}rows or {page}pages
+# @api.route('', methods=['GET'])
+# def get_task_list():
+#     result = {
+#         "code": 1,
+#         "data": None,
+#         "msg": "ok"
+#     }
+#     # code = request.args.get('code')
+#     page = request.args.get('page') or '1'
+#     count = request.args.get('count') or '10'
+#     state = request.args.get('state') 
+#     area_code = request.args.get('area_code')
+#     user_id = request.args.get('user_id')
+#     # check params
+#     if not page.isdigit():
+#         result["code"] = 0
+#         result["msg"] = "page not numbers"
+#         return jsonify(result)
+#     if not count.isdigit():
+#         result["code"] = 0
+#         result["msg"] = "count not numbers"
+#         return jsonify(result)
+#     if not state.isdigit():
+#         result["code"] = 0
+#         result["msg"] = "state not numbers"
+#         return jsonify(result)
+#     if not area_code.isdigit():
+#         result["code"] = 0
+#         result["msg"] = "area_code not numbers"
+#         return jsonify(result)
+#     if not user_id.isdigit():
+#         result["code"] = 0
+#         result["msg"] = "user_id not numbers"
+#         return jsonify(result)
+#     start = (int(page) - 1) * int(count)
+#     sql = '''SELECT task_id, extent, user_id, state, created_at, updated_at from task WHERE 1=1 '''
+#     if user_id:
+#         sql = sql + ''' AND user_id='''+"'"+user_id+"'"
+#     if state:
+#         sql = sql + ''' AND state='''+"'"+state+"'"
+#     if area_code:
+#         sql = sql + ''' AND area_code='''+"'"+area_code+"'"
+#     sql = sql + ''' ORDER BY updated_at desc LIMIT {count} OFFSET {start}'''
+#     queryData = queryBySQL(sql.format(start=start, count=count))
+#     if not queryData:
+#         result["code"] = 0
+#         result["msg"] = "查询语句有问题"
+#         return jsonify(result)
+#     rows = queryData.fetchall()
+#     result["data"] = rows
 
-    with DB.auto_commit():
-        task = TASK.query.filter_by(task_id=task_id).first_or_404()
-        if 'extent' in params:
-            task.extent = params['extent']
-        if 'user_id' in params:
-            task.user_id = params['user_id']
-        if 'state' in params:
-            task.state = params['state']
-        if 'status' in params:
-            task.status = params['status']
-        DB.session.add(task)
-        return jsonify(result)
+#     return jsonify(result)
 
+# # get task list where id={id}
+# @api.route('/<task_id>', methods=['GET'])
+# def get_task_by_id(task_id):
+#     result = {
+#         "code": 1,
+#         "data": None,
+#         "msg": "ok"
+#     }
+#     # check params
+#     if not task_id.isdigit():
+#         result["code"] = 0
+#         result["msg"] = "task_id not numbers"
+#         return jsonify(result)
 
+#     sql = '''SELECT task_id, extent, user_id, state, created_at, updated_at from task  WHERE task_id = {task_id}'''
+#     queryData = queryBySQL(sql.format(task_id=task_id))
+#     if not queryData:
+#         result["code"] = 0
+#         result["msg"] = "查询语句有问题"
+#         return jsonify(result)
+#     row = queryData.fetchone()
+#     result["data"] = row
+
+#     return jsonify(result)
+    
+
+# # update task state or status(confirmed)
+# @api.route('/<task_id>', methods=['POST'])
+# def update_task(task_id):
+#     result = {
+#         "code": 1,
+#         "data": None,
+#         "msg": "update_task_ok"
+#     }
+#     # check params
+#     if not task_id.isdigit():
+#         result["code"] = 0
+#         result["msg"] = "task_id not numbers"
+#         return jsonify(result)
+#     paramsDic = request.json
+#     params = json.loads(json.dumps(paramsDic))
+
+#     with DB.auto_commit():
+#         task = TASK.query.filter_by(task_id=task_id).first_or_404()
+#         if 'extent' in params: # user-inputed unnecessary extent
+#             task.extent = params['extent']
+#         if 'user_id' in params:
+#             task.user_id = params['user_id']
+#         if 'state' in params:
+#             task.state = params['state']
+#         if 'status' in params:
+#             task.status = params['status']
+#         DB.session.add(task)
+#         return jsonify(result)
+
+# 删除任务id=1的信息
 @api.route('/<task_id>', methods=['DELETE'])
 def delete_task(task_id):
     result = {

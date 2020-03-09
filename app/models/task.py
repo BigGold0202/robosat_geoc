@@ -10,3 +10,5 @@ class task(Base):
     user_id = Column(String(50))
     state = Column(Integer, default=1)
     status = Column(Integer, default=1)
+    area_code = Column(String(50))
+    handler = Column(String(255))
