@@ -6,6 +6,7 @@ from app.libs.redprint import Redprint
 from app.config import setting as CONFIG
 # from app.api.v1.job import scheduler
 import json
+import time
 
 api = Redprint('task')
 
@@ -15,14 +16,14 @@ def create_task():
     result = {
         "code": 1,
         "data": None,
-        "msg": "ok"
+        "msg": "建筑物提取任务已进入队伍序列"
     }
     # check params
     paramsDic = request.json
     params = json.loads(json.dumps(paramsDic))
     if not params:
         result["code"] = 0
-        result["msg"] = "no params"
+        result["msg"] = "参数解析错误"
         return jsonify(result)
     extent = params['extent']
     user_id = params['user_id']
@@ -43,7 +44,7 @@ def get_task_list():
     result = {
         "code": 1,
         "data": None,
-        "msg": "ok"
+        "msg": "获取列表成功"
     }
     # code = request.args.get('code')
     page = request.args.get('page') or '1'
@@ -81,7 +82,7 @@ def get_task_list():
     if area_code:
         sql = sql + ''' AND area_code='''+"'"+area_code+"'"
     sql = sql + ''' ORDER BY updated_at desc LIMIT {count} OFFSET {start}'''
-    queryData = queryBySQL(sql.format(start=start, count=count))
+    queryData = queryBySQL(sql.format(start=start, count=count))#参数format
     if not queryData:
         result["code"] = 0
         result["msg"] = "查询语句有问题"
@@ -91,6 +92,43 @@ def get_task_list():
 
     return jsonify(result)
 
+# get job in line
+@api.route('/count', methods=['GET'])
+def get_job_num():
+    result = {
+        "code": 1,
+        "data": None,
+        "msg": "任务数量查询成功"
+    }
+    sql = '''SELECT count(*) from task WHERE state = 1 or state =2'''
+    queryData = queryBySQL(sql)
+    if not queryData:
+        result["code"] = 0
+        result["msg"] = "查询语句有问题"
+        return jsonify(result)
+    rows = queryData.fetchall()
+    result["data"] = rows
+
+    return jsonify(result)
+
+# get job in line
+@api.route('/job_id', methods=['GET'])
+def get_processing_job():
+    result = {
+        "code": 1,
+        "data": None,
+        "msg": "任务数量查询成功"
+    }
+    sql = '''SELECT * from task WHERE state =2'''
+    queryData = queryBySQL(sql)
+    if not queryData:
+        result["code"] = 0
+        result["msg"] = "查询语句有问题"
+        return jsonify(result)
+    rows = queryData.fetchall()
+    result["data"] = rows
+
+    return jsonify(result)
 # # get task list where id={id}
 # @api.route('/<task_id>', methods=['GET'])
 # def get_task_by_id(task_id):
@@ -183,6 +221,7 @@ def do_job(task_id, state):
         task = TASK.query.filter_by(task_id=task_id).first_or_404()
         if task:
             task.state = state
+            task.end_time = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
             DB.session.add(task)
 
 
