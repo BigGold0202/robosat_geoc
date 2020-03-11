@@ -32,9 +32,9 @@ def create_task():
     with DB.auto_commit():
         task = TASK()
         task.extent = extent
-        task.user_id = user_id     
-        task.area_code = area_code     
-      
+        task.user_id = user_id
+        task.area_code = area_code
+
         DB.session.add(task)
         return jsonify(result)
 
@@ -49,7 +49,7 @@ def get_task_list():
     # code = request.args.get('code')
     page = request.args.get('page') or '1'
     count = request.args.get('count') or '10'
-    # state = request.args.get('state') 
+    # state = request.args.get('state')
     area_code = request.args.get('area_code')
     user_id = request.args.get('user_id')
     # check params
@@ -82,7 +82,7 @@ def get_task_list():
     if area_code:
         sql = sql + ''' AND area_code='''+"'"+area_code+"'"
     sql = sql + ''' ORDER BY updated_at desc LIMIT {count} OFFSET {start}'''
-    queryData = queryBySQL(sql.format(start=start, count=count))#参数format
+    queryData = queryBySQL(sql.format(start=start, count=count))  # 参数format
     if not queryData:
         result["code"] = 0
         result["msg"] = "查询语句有问题"
@@ -119,7 +119,7 @@ def get_processing_job():
         "data": None,
         "msg": "任务查询成功"
     }
-    sql = '''SELECT task_id,user_id from task WHERE state =2'''#,task.created_at 返回任务创建时间
+    sql = '''SELECT task_id,user_id from task WHERE state =2'''  # ,task.created_at 返回任务创建时间
     queryData = queryBySQL(sql)
     if not queryData:
         result["code"] = 0
@@ -127,8 +127,8 @@ def get_processing_job():
         return jsonify(result)
     rows = queryData.fetchall()
     result["data"] = rows
-    if result["data"]==[]:
-        result["data"]="没有正在执行的任务"
+    if result["data"] == []:
+        result["data"] = "没有正在执行的任务"
     return jsonify(result)
 
 # get task list where id={id}
@@ -155,7 +155,7 @@ def get_task_by_id(task_id):
     result["data"] = row
 
     return jsonify(result)
-    
+
 
 # update task state or status(confirmed)
 @api.route('/<task_id>', methods=['POST'])
@@ -175,7 +175,7 @@ def update_task(task_id):
 
     with DB.auto_commit():
         task = TASK.query.filter_by(task_id=task_id).first_or_404()
-        if 'extent' in params: # user-inputed unnecessary extent
+        if 'extent' in params:  # user-inputed unnecessary extent
             task.extent = params['extent']
         if 'user_id' in params:
             task.user_id = params['user_id']
@@ -222,8 +222,13 @@ def do_job(task_id, state):
     with DB.auto_commit():
         task = TASK.query.filter_by(task_id=task_id).first_or_404()
         if task:
+            if state == 2:
+                IPADDR = CONFIG.IPADDR
+                task.handler = IPADDR
+            elif state == 3:
+                task.end_at = time.strftime(
+                    '%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
             task.state = state
-            task.end_time = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
             DB.session.add(task)
 
 
