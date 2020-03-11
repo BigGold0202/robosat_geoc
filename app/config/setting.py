@@ -17,3 +17,8 @@ ROBOSAT_DATASET_PATH = "dataset"
 
 # ip address
 IPADDR = UTILS.get_host_ip()
+
+# extent
+MIN_T_EXTENT = 0.0042
+MIN_P_EXTENT = 0.0014
+MAX_P_EXTENT = 0.0098
