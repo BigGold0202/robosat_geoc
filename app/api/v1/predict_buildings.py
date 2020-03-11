@@ -1,8 +1,7 @@
-from sqlalchemy import or_
+﻿from sqlalchemy import or_
 from app.models.base import queryBySQL, db as DB
 from app.libs.redprint import Redprint
 from app.models.predict_buildings import PredictBuildings
-from app.models.base import queryBySQL
 from flask import jsonify
 from flask import request
 from geomet import wkb
@@ -19,31 +18,18 @@ def onegeojson():
         "data": None,
         "msg": "ok"
     }
-    extent = request.args.get("extent")
-    if not extent:
+    task_id = request.args.get("task_id")
+    if not task_id:
         result["code"] = 0
-        result["msg"] = "参数有误"
+        result["msg"] = "task_id缺失"
         return jsonify(result)
-    # coords = extent.split(',')
-    sql = '''SELECT
-	jsonb_build_object ( 'type', 'FeatureCollection', 'features', jsonb_agg ( features.feature ) ) 
-FROM
-	(
-	SELECT
-		jsonb_build_object ( 'type', 'Feature', 'id', gid, 'geometry', ST_AsGeoJSON ( geom ) :: jsonb, 'properties', to_jsonb ( inputs ) - 'geom' ) AS feature 
-	FROM
-		(
-		SELECT gid,geom AS geom 
-		FROM "predict_buildings" WHERE
-			geom @
-		ST_MakeEnvelope ( {extent}, {srid} )) inputs 
-	) features; '''
-    queryData = queryBySQL(sql.format(extent=extent, srid=4326))
+    sql = '''select * from "BUIA" where gid in (select a.gid from predict_buildings as a where task_id ={task_id}) '''
+    queryData = queryBySQL(sql.format(task_id=task_id))
     if not queryData:
         result["code"] = 0
         result["msg"] = "查询语句有问题"
         return jsonify(result)
-    row = queryData.fetchone()
+    row = queryData.fetchall()
     result["data"] = row
 
     return jsonify(result)
@@ -56,7 +42,7 @@ def get(gid):
         "data": None,
         "msg": "ok"
     }
-    sql = '''select st_asgeojson(geom) as geojson from predict_buildings where gid ={gid}'''
+    sql = '''select st_asgeojson(geom) as geojson from predict_buildings WHERE gid ={gid}'''
     queryData = queryBySQL(sql.format(gid=gid))
     if not queryData:
         result["code"] = 0
@@ -67,7 +53,10 @@ def get(gid):
         result["msg"] = "未查询到内容"
         return jsonify(result)
     row = queryData.fetchone()
-    result["data"] = json.loads(row["geojson"])
+    if row['geojson']:
+        result["data"] = json.loads(row["geojson"])
+    else:
+        result['data'] = None
     return jsonify(result)
 
 
@@ -102,6 +91,81 @@ def create_buildings(geojsonObj):
     with DB.auto_commit():
         DB.session.bulk_save_objects(buildings)
         return jsonify(result)
+
+
+@api.route('', methods=['POST'])
+def update_buildings():
+    result = {
+        "code": 1,
+        "data": None,
+        "msg": "ok"
+    }
+    # check params
+    if not request.json:
+        result['code'] = 0
+        result['msg'] = 'miss params.'
+        return jsonify(result)
+    
+    paramsDic = request.json
+    params = json.loads(json.dumps(paramsDic))
+
+    if 'status' not in params:
+        result['code'] = 0
+        result['msg'] = 'miss status.'
+        return jsonify(result)
+    
+    if 'ids' not in  params and 'task_id' not in params:
+        result['code'] = 0
+        result['msg'] = 'miss ids or task_id.'
+        return jsonify(result)
+
+    if 'ids' in params and 'task_id' in params:
+        result['code'] = 0
+        result['msg'] = 'both have ids and task_id.'
+        return jsonify(result)
+
+    status = params['status']
+
+    def updateBuildByIds(ids):
+        for gid in ids:
+            build = PredictBuildings.query.filter_by(gid=gid).first_or_404()
+            if not build:
+                continue
+            build.status = status
+            with DB.auto_commit():
+                DB.add(build)
+
+    if "ids" in params:
+        ids = params['ids']
+        if not isinstance(ids,list):
+            result['code'] = 0
+            result['msg'] = 'ids not list type.'
+            return jsonify(result)
+        updateBuildByIds(ids)
+        
+    if "task_id" in params:
+        task_id = params['task_id']
+        # builds = PredictBuildings.query.filter_by(task_id=task_id)
+        # if not builds:
+        #     result['code'] = 0
+        #     result['msg'] = 'task id not found'
+        #     return jsonify(result)
+        # for build in builds:
+        #     build.status = status
+        #     DB.session.bulk_save_objects(builds)
+        sql = '''SELECT gid, task_id, extent, user_id, state, status from predict_buildings WHERE task_id = {task_id}'''
+        queryData = queryBySQL(sql.format(task_id=task_id))
+        if not queryData:
+            result["code"] = 0
+            result["msg"] = "查询语句有问题"
+            return jsonify(result)
+        rows = queryData.fetchall()
+        ids = []
+        for row in rows:
+            gid = row.gid
+            ids.append(gid)
+        updateBuildByIds(ids)
+    return jsonify(result)
 
 
 def insert_buildings(geojsonObj):

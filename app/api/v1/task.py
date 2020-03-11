@@ -117,9 +117,9 @@ def get_processing_job():
     result = {
         "code": 1,
         "data": None,
-        "msg": "任务数量查询成功"
+        "msg": "任务查询成功"
     }
-    sql = '''SELECT * from task WHERE state =2'''
+    sql = '''SELECT task_id,user_id from task WHERE state =2'''#,task.created_at 返回任务创建时间
     queryData = queryBySQL(sql)
     if not queryData:
         result["code"] = 0
@@ -127,62 +127,64 @@ def get_processing_job():
         return jsonify(result)
     rows = queryData.fetchall()
     result["data"] = rows
+    if result["data"]==[]:
+        result["data"]="没有正在执行的任务"
+    return jsonify(result)
+
+# get task list where id={id}
+@api.route('/<task_id>', methods=['GET'])
+def get_task_by_id(task_id):
+    result = {
+        "code": 1,
+        "data": None,
+        "msg": "ok"
+    }
+    # check params
+    if not task_id.isdigit():
+        result["code"] = 0
+        result["msg"] = "task_id not numbers"
+        return jsonify(result)
+
+    sql = '''SELECT task_id, extent, user_id, state, created_at, updated_at from task  WHERE task_id = {task_id}'''
+    queryData = queryBySQL(sql.format(task_id=task_id))
+    if not queryData:
+        result["code"] = 0
+        result["msg"] = "查询语句有问题"
+        return jsonify(result)
+    row = queryData.fetchone()
+    result["data"] = row
 
     return jsonify(result)
-# # get task list where id={id}
-# @api.route('/<task_id>', methods=['GET'])
-# def get_task_by_id(task_id):
-#     result = {
-#         "code": 1,
-#         "data": None,
-#         "msg": "ok"
-#     }
-#     # check params
-#     if not task_id.isdigit():
-#         result["code"] = 0
-#         result["msg"] = "task_id not numbers"
-#         return jsonify(result)
-
-#     sql = '''SELECT task_id, extent, user_id, state, created_at, updated_at from task  WHERE task_id = {task_id}'''
-#     queryData = queryBySQL(sql.format(task_id=task_id))
-#     if not queryData:
-#         result["code"] = 0
-#         result["msg"] = "查询语句有问题"
-#         return jsonify(result)
-#     row = queryData.fetchone()
-#     result["data"] = row
-
-#     return jsonify(result)
     
 
-# # update task state or status(confirmed)
-# @api.route('/<task_id>', methods=['POST'])
-# def update_task(task_id):
-#     result = {
-#         "code": 1,
-#         "data": None,
-#         "msg": "update_task_ok"
-#     }
-#     # check params
-#     if not task_id.isdigit():
-#         result["code"] = 0
-#         result["msg"] = "task_id not numbers"
-#         return jsonify(result)
-#     paramsDic = request.json
-#     params = json.loads(json.dumps(paramsDic))
+# update task state or status(confirmed)
+@api.route('/<task_id>', methods=['POST'])
+def update_task(task_id):
+    result = {
+        "code": 1,
+        "data": None,
+        "msg": "update_task_ok"
+    }
+    # check params
+    if not task_id.isdigit():
+        result["code"] = 0
+        result["msg"] = "task_id not numbers"
+        return jsonify(result)
+    paramsDic = request.json
+    params = json.loads(json.dumps(paramsDic))
 
-#     with DB.auto_commit():
-#         task = TASK.query.filter_by(task_id=task_id).first_or_404()
-#         if 'extent' in params: # user-inputed unnecessary extent
-#             task.extent = params['extent']
-#         if 'user_id' in params:
-#             task.user_id = params['user_id']
-#         if 'state' in params:
-#             task.state = params['state']
-#         if 'status' in params:
-#             task.status = params['status']
-#         DB.session.add(task)
-#         return jsonify(result)
+    with DB.auto_commit():
+        task = TASK.query.filter_by(task_id=task_id).first_or_404()
+        if 'extent' in params: # user-inputed unnecessary extent
+            task.extent = params['extent']
+        if 'user_id' in params:
+            task.user_id = params['user_id']
+        if 'state' in params:
+            task.state = params['state']
+        if 'status' in params:
+            task.status = params['status']
+        DB.session.add(task)
+        return jsonify(result)
 
 # 删除任务id=1的信息
 @api.route('/<task_id>', methods=['DELETE'])

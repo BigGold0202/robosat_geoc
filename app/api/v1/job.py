@@ -27,7 +27,7 @@ def task_job():
         TASK.do_job(newTask.task_id, 4)  # 任务失败
         print('job faild！')
     else:
-        TASK.do_job(newTask.task_id, 3)  # 任务完成
+        TASK.do_job(newTask.task_id, 3)  # 任务完成并修改完成时间
         print('job success!')
 
 
