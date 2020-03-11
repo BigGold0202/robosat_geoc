@@ -105,7 +105,7 @@ def update_buildings():
         result['code'] = 0
         result['msg'] = 'miss params.'
         return jsonify(result)
-    
+
     paramsDic = request.json
     params = json.loads(json.dumps(paramsDic))
 
@@ -113,8 +113,8 @@ def update_buildings():
         result['code'] = 0
         result['msg'] = 'miss status.'
         return jsonify(result)
-    
-    if 'ids' not in  params and 'task_id' not in params:
+
+    if 'ids' not in params and 'task_id' not in params:
         result['code'] = 0
         result['msg'] = 'miss ids or task_id.'
         return jsonify(result)
@@ -133,16 +133,16 @@ def update_buildings():
                 continue
             build.status = status
             with DB.auto_commit():
-                DB.add(build)
+                DB.session.add(build)
 
     if "ids" in params:
         ids = params['ids']
-        if not isinstance(ids,list):
+        if not isinstance(ids, list):
             result['code'] = 0
             result['msg'] = 'ids not list type.'
             return jsonify(result)
         updateBuildByIds(ids)
-        
+
     if "task_id" in params:
         task_id = params['task_id']
         # builds = PredictBuildings.query.filter_by(task_id=task_id)

@@ -4,7 +4,7 @@ from app.models.base import queryBySQL, db as DB
 from app.models.task import task as TASK
 from app.libs.redprint import Redprint
 from app.config import setting as CONFIG
-# from app.api.v1.job import scheduler
+from app.api.v1 import tools as TOOLS
 import json
 import time
 
@@ -16,27 +16,54 @@ def create_task():
     result = {
         "code": 1,
         "data": None,
-        "msg": "建筑物提取任务已进入队伍序列"
+        "msg": "修改或创建成功！"
     }
     # check params
-    paramsDic = request.json
-    params = json.loads(json.dumps(paramsDic))
-    if not params:
+    if not request.json:
         result["code"] = 0
         result["msg"] = "参数解析错误"
         return jsonify(result)
-    extent = params['extent']
-    user_id = params['user_id']
-    area_code = params['area_code']
-    # insert into
-    with DB.auto_commit():
-        task = TASK()
-        task.extent = extent
-        task.user_id = user_id
-        task.area_code = area_code
+    paramsDic = request.json
+    params = json.loads(json.dumps(paramsDic))
 
-        DB.session.add(task)
+    if result["code"] == 0:
+        return result
+    if 'task_id' in params:
+        task_ids = params['task_id']
+        if not isinstance(task_ids, list):
+            result['code'] = 0
+            result['msg'] = '任务列表参数不是数组。'
+            return jsonify(result)
+        if ('state' not in params and 'status' not in params) or ('state' in params and 'status' in params):
+            result['code'] = 0
+            result['msg'] = '不支持的修改。'
+            return jsonify(result)
+        for task_id in task_ids:
+            task = TASK.query.filter_by(task_id=task_id).first_or_404()
+            if not task:
+                continue
+            if 'state' in params:
+                task.state = params['state']
+            if 'status' in params:
+                task.status = params['status']
+            with DB.auto_commit():
+                DB.session.add(task)
         return jsonify(result)
+    else:
+        if 'extent' not in params or 'user_id' not in params or 'area_code' not in params:
+            result['code'] = 0
+            result['msg'] = '缺少必要的参数。'
+            return jsonify(result)
+        extent = params['extent']
+        user_id = params['user_id']
+        area_code = params['area_code']
+        with DB.auto_commit():
+            task = TASK()
+            task.extent = extent
+            task.user_id = user_id
+            task.area_code = area_code
+            DB.session.add(task)
+            return jsonify(result)
 
 # get task list of {count}rows or {page}pages
 @api.route('', methods=['GET'])
@@ -73,6 +100,7 @@ def get_task_list():
         result["code"] = 0
         result["msg"] = "user_id not numbers"
         return jsonify(result)
+    # 查询该用户所有任务
     start = (int(page) - 1) * int(count)
     sql = '''SELECT task_id, extent, user_id, area_code, state, created_at, updated_at from task WHERE 1=1 '''
     # if state:
@@ -88,7 +116,23 @@ def get_task_list():
         result["msg"] = "查询语句有问题"
         return jsonify(result)
     rows = queryData.fetchall()
-    result["data"] = rows
+    # 查询目前排队情况
+    sql_order = '''select task_id from task where state = 1 ORDER BY task_id LIMIT 1'''
+    queryData_order = queryBySQL(sql_order)  # 参数format
+    first_task = queryData_order.fetchone()
+    if first_task:
+        first_id = first_task.task_id
+        tasks = []
+        for row in rows:
+            d = dict(row.items())
+            if row.state == 1:
+                d['rank'] = row.task_id - first_id + 1
+            else:
+                d['rank'] = None
+            tasks.append(d)
+        result['data'] = tasks
+    else:
+        result["data"] = rows
 
     return jsonify(result)
 
