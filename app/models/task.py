@@ -6,13 +6,12 @@ from app.models.base import Base
 
 class task(Base):
     task_id = Column(Integer, primary_key=True)
+    job_id = Column(Integer)
     extent = Column(String(256))
     user_id = Column(String(50))
+    area_code = Column(String(50))
     state = Column(Integer, default=1)
     status = Column(Integer, default=1)
-<<<<<<< HEAD
-    area_code = Column(String(50))
     handler = Column(String(255))
-=======
-    handler = Column(Integer, default=1)
->>>>>>> 5980742b523f416f7859dea63f594b688aa873aa
+    created_at = Column(DateTime)
+    end_at = Column(DateTime)
