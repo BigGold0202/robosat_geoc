@@ -59,7 +59,7 @@ def predict_job(task):
     geojson = RSPpredict.main(
         extent, dataPath, dsPredictPath, map="google")
 
-    if not geojson:
+    if not geojson or isinstance(geojson, dict) or 'features' not in geojson:
         result["code"] = 0
         result["msg"] = "预测失败"
         return result
