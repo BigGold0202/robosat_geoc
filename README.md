@@ -45,8 +45,7 @@
 ### 如何安装：
 
 - 对于 MacOS 或 Linux：
-  - 下载代码：`git clone https://github.com/geocompass/robosat_geoc.git`
-  - 安装依赖：`pip install -r requirements.txt` （若使用 Anaconda 需要注意 python 路径，后同）
+  见[docs/linux安装指南](https://github.com/geocompass/robosat_geoc/blob/master/docs/Linux安装指南.md)
 - 对于 Windows：
   - 在 Windows 安装依赖时会报 `GLAL` 相关错误，目前没有比较好的解决办法
   - 建议使用 WSL，[在 Windows 中安装 Ubuntu SubLinux](https://docs.microsoft.com/zh-cn/windows/wsl/install-win10)

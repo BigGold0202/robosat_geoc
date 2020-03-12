@@ -11,7 +11,7 @@ api = Redprint('job')
 scheduler = APScheduler()
 
 
-@scheduler.task(trigger='interval', id='predict_job', seconds=2)
+@scheduler.task(trigger='interval', id='predict_job', seconds=5)
 def task_job():
     isDoingJob = TASK.doing_job()
     if isDoingJob:
@@ -25,10 +25,10 @@ def task_job():
     result = PREDICT.predict_job(newTask)
     if result['code'] == 0:
         TASK.do_job(newTask.task_id, 4)  # 任务失败
-        print('done job faild！')
+        print('job faild！')
     else:
-        TASK.do_job(newTask.task_id, 3)  # 任务完成
-        print('done job success!')
+        TASK.do_job(newTask.task_id, 3)  # 任务完成并修改完成时间
+        print('job success!')
 
 
 @api.route('/pause', methods=['GET'])
@@ -42,7 +42,7 @@ def pause_job(id):  # 暂停
 def resume_job(id):  # 恢复
     job_id = request.args.get('id') or id
     scheduler.resume_job(str(job_id))
-    return "Success!"
+    return "resume success!"
 
 
 @api.route('/get_jobs', methods=['GET'])
@@ -67,4 +67,4 @@ def add_task():
         # trigger='cron' 表示是一个定时任务
         scheduler.add_job(func=task_job, id='1', args=(1, 1), trigger='cron', day_of_week='0-6', hour=18, minute=24,
                           second=10, replace_existing=True)
-    return 'sucess'
+    return 'add job success'

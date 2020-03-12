@@ -34,7 +34,7 @@ def clear_log():
     return jsonify(result)
 
 
-def check_extent(extent, train_or_predict, set_maximum = False):
+def check_extent(extent, train_or_predict, set_maximum=False):
     result = {
         "code": 1,
         "data": None,
@@ -50,11 +50,14 @@ def check_extent(extent, train_or_predict, set_maximum = False):
         result["msg"] = "参数有误"
         return result
     if "train" in train_or_predict:
-        if float(coords[2]) - float(coords[0]) < 0.005 or float(coords[3]) - float(coords[1]) < 0.005:
+        if float(coords[2]) - float(coords[0]) < SETTING.MIN_T_EXTENT or float(coords[3]) - float(coords[1]) < SETTING.MIN_T_EXTENT:
             result["code"] = 0
             result["msg"] = "Extent for training is too small. Training stopped."
     elif "predict" in train_or_predict:
-        if float(coords[2]) - float(coords[0]) < 0.002 or float(coords[3]) - float(coords[1]) < 0.002:
+        if float(coords[2]) - float(coords[0]) < SETTING.MIN_P_EXTENT or float(coords[3]) - float(coords[1]) < SETTING.MIN_P_EXTENT:
+            result["code"] = 0
+            result["msg"] = "Extent for prediction is too small. Predicting stopped."
+        elif float(coords[2]) - float(coords[0]) > SETTING.MAX_P_EXTENT or float(coords[3]) - float(coords[1]) > MAX_P_EXTENT.MIN_P_EXTENT:
             result["code"] = 0
             result["msg"] = "Extent for prediction is too small. Predicting stopped."
         elif set_maximum and float(coords[2]) - float(coords[0]) > 0.02 or float(coords[3]) - float(coords[1]) > 0.02:
