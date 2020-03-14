@@ -6,7 +6,6 @@ from app.models.base import Base
 
 class task(Base):
     task_id = Column(Integer, primary_key=True)
-    job_id = Column(Integer)
     extent = Column(String(256))
     user_id = Column(String(50))
     area_code = Column(String(50))
