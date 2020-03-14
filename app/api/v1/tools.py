@@ -57,7 +57,7 @@ def check_extent(extent, train_or_predict, set_maximum=False):
         if float(coords[2]) - float(coords[0]) < SETTING.MIN_P_EXTENT or float(coords[3]) - float(coords[1]) < SETTING.MIN_P_EXTENT:
             result["code"] = 0
             result["msg"] = "Extent for prediction is too small. Predicting stopped."
-        elif float(coords[2]) - float(coords[0]) > SETTING.MAX_P_EXTENT or float(coords[3]) - float(coords[1]) > MAX_P_EXTENT.MIN_P_EXTENT:
+        elif float(coords[2]) - float(coords[0]) > SETTING.MAX_P_EXTENT or float(coords[3]) - float(coords[1]) > SETTING.MAX_P_EXTENT:
             result["code"] = 0
             result["msg"] = "Extent for prediction is too small. Predicting stopped."
         elif set_maximum and float(coords[2]) - float(coords[0]) > 0.02 or float(coords[3]) - float(coords[1]) > 0.02:
