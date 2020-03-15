@@ -13,4 +13,4 @@ ds
 dp
 data/model
 dataset
-nohup.out
+out.log

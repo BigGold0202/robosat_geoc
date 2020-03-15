@@ -3,6 +3,8 @@ CREATE TABLE "public"."predict_buildings" (
 	"task_id" serial4,
   "extent" varchar(255) COLLATE "pg_catalog"."default",
   "user_id" int4,
+  "area_code" varchar(20) COLLATE "pg_catalog"."default",
+  "handler" varchar(50) COLLATE "pg_catalog"."default",
   "state" int2 DEFAULT 1,
   "status" int2 DEFAULT 1,
   "created_at" timestamp(6) DEFAULT CURRENT_TIMESTAMP,

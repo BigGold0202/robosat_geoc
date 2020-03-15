@@ -13,7 +13,6 @@ scheduler = APScheduler()
 
 @scheduler.task(trigger='interval', id='predict_job', seconds=5)
 def task_job():
-    #print("scheduler job interval 5s..")
     isDoingJob = TASK.doing_job()
     if isDoingJob:
         return
