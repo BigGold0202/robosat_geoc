@@ -75,18 +75,23 @@ def geojson2shp(collection, shp_path):
                 'geometry': shapely.geometry.mapping(shape),
                 'properties': {},
             })
+    # Write a prj file
+    prj_str = '''PROJCS["WGS_1984_Web_Mercator_Auxiliary_Sphere",GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Mercator_Auxiliary_Sphere"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",0.0],PARAMETER["Standard_Parallel_1",0.0],PARAMETER["Auxiliary_Sphere_Type",0.0],UNIT["Meter",1.0]]'''
+    prj_path = shp_path.replace('.shp', '.prj')
+    with open(prj_path, 'w') as f:
+        f.write(prj_str)
+        f.close()
 
-
-# if __name__ == "__main__":
-    # DATA_PATH = SETTING.ROBOSAT_DATASET_PATH + "./dataset/predict_1583054722.123778"
-    # DATA_PATH = "."
-    # shp_path = DATA_PATH + "/regularized_footprints.shp"
-    # shp4326_path = DATA_PATH + "/building4326.shp"
-    # regularized_json_path = DATA_PATH+"/regularized.json"
-    # json4326 = DATA_PATH+"/regular_4326.json"
-    # shp_to_geojson(shp_path,regularized_json_path)
-    # projected_json = geojson_project(
-    #     regularized_json_path, "epsg:3857", "epsg:4326")
-    # with open(json4326, 'r') as rg:
-    #     geojson4326 = json.load(rg)
-    #     geojson2shp(geojson4326, shp4326_path)
+        # if __name__ == "__main__":
+        # DATA_PATH = SETTING.ROBOSAT_DATASET_PATH + "./dataset/predict_1583054722.123778"
+        # DATA_PATH = "."
+        # shp_path = DATA_PATH + "/regularized_footprints.shp"
+        # shp4326_path = DATA_PATH + "/building4326.shp"
+        # regularized_json_path = DATA_PATH+"/regularized.json"
+        # json4326 = DATA_PATH+"/regular_4326.json"
+        # shp_to_geojson(shp_path,regularized_json_path)
+        # projected_json = geojson_project(
+        #     regularized_json_path, "epsg:3857", "epsg:4326")
+        # with open(json4326, 'r') as rg:
+        #     geojson4326 = json.load(rg)
+        #     geojson2shp(geojson4326, shp4326_path)
