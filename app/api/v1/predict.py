@@ -76,12 +76,12 @@ def predict_job(task):
     # site:https://pro.arcgis.com/zh-cn/pro-app/tool-reference/3d-analyst/regularize-building-footprint.htm
     shp_regularized = dsPredictPath + "/regularized.shp"
     # TODO
-    # arcpy_result = request.get(
-    #     SETTING.ARCPY_HOST.format(path="predict_"+str(ts)))
-    # if not arcpy_result:
-    #     result["code"] = 0
-    #     result["msg"] = "arcpy regularize faild."
-    #     return result
+    arcpy_result = request.get(
+        SETTING.ARCPY_HOST.format(path="predict_"+str(ts)))
+    if not arcpy_result:
+        result["code"] = 0
+        result["msg"] = "arcpy regularize faild."
+        return result
 
     # shp to geojson
     geojson3857 = utils_geom.shp2geojson(shp_regularized)
