@@ -8,6 +8,7 @@ CREATE TABLE "public"."task" (
   "status" int2 DEFAULT 1,
   "created_at" timestamp(6) DEFAULT CURRENT_TIMESTAMP,
   "updated_at" timestamp(6) DEFAULT CURRENT_TIMESTAMP,
+  "end_at" timestamp(6) DEFAULT CURRENT_TIMESTAMP,
   "handler" varchar(255),
   CONSTRAINT "task_pkey" PRIMARY KEY ("task_id")
 )
@@ -24,6 +25,7 @@ COMMENT ON COLUMN "public"."task"."state" IS '当前状态';
 COMMENT ON COLUMN "public"."task"."status" IS '是否删除';
 COMMENT ON COLUMN "public"."task"."created_at" IS '创建时间';
 COMMENT ON COLUMN "public"."task"."updated_at" IS '更新时间';
+COMMENT ON COLUMN "public"."task"."end_at" IS '完成时间';
 
 -- create update function
 CREATE OR REPLACE FUNCTION task_update_timestamp () RETURNS TRIGGER AS $$ BEGIN
