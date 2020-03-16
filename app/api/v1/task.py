@@ -10,7 +10,7 @@ import time
 
 api = Redprint('task')
 
-# create task
+# 新建任务
 @api.route('', methods=['POST'])
 def create_task():
     result = {
@@ -65,7 +65,7 @@ def create_task():
             DB.session.add(task)
             return jsonify(result)
 
-# get task list of {count}rows or {page}pages
+# 获取count条 or page页 任务列表
 @api.route('', methods=['GET'])
 def get_task_list():
     result = {
@@ -102,7 +102,7 @@ def get_task_list():
         return jsonify(result)
     # 查询该用户所有任务
     start = (int(page) - 1) * int(count)
-    sql = '''SELECT task_id, extent, user_id, area_code, state, created_at, updated_at from task WHERE 1=1 '''
+    sql = '''SELECT task_id, extent, user_id, area_code, state, created_at, end_at from task WHERE status !=0 '''
     # if state:
     #     sql = sql + ''' AND state='''+"'"+state+"'"
     if user_id:
@@ -116,23 +116,21 @@ def get_task_list():
         result["msg"] = "查询语句有问题"
         return jsonify(result)
     rows = queryData.fetchall()
-    # 查询目前排队情况
-    sql_order = '''select task_id from task where state = 1 ORDER BY task_id LIMIT 1'''
-    queryData_order = queryBySQL(sql_order)  # 参数format
-    first_task = queryData_order.fetchone()
-    if first_task:
-        first_id = first_task.task_id
-        tasks = []
-        for row in rows:
-            d = dict(row.items())
-            if row.state == 1:
+    tasks = []
+    for row in rows:
+        d = dict(row.items())
+        if row.state == 1:
+        # 查询目前排队情况
+            sql_order = '''select task_id from task where state = 1 ORDER BY task_id LIMIT 1'''
+            queryData_order = queryBySQL(sql_order)  # 参数format
+            first_task = queryData_order.fetchone()
+            if first_task:
+                first_id = first_task.task_id
                 d['rank'] = row.task_id - first_id + 1
-            else:
-                d['rank'] = None
-            tasks.append(d)
-        result['data'] = tasks
-    else:
-        result["data"] = rows
+        else:
+            d['rank'] = None
+        tasks.append(d)
+    result['data'] = tasks
 
     return jsonify(result)
 
@@ -200,48 +198,47 @@ def get_task_by_id(task_id):
 
     return jsonify(result)
 
+# # 更新任务
+# @api.route('/<task_id>', methods=['POST'])
+# def update_task(task_id):
+#     result = {
+#         "code": 1,
+#         "data": None,
+#         "msg": "update_task_ok"
+#     }
+#     # check params
+#     if not task_id.isdigit():
+#         result["code"] = 0
+#         result["msg"] = "task_id not numbers"
+#         return jsonify(result)
+#     paramsDic = request.json
+#     params = json.loads(json.dumps(paramsDic))
 
-# update task state or status(confirmed)
-@api.route('/<task_id>', methods=['POST'])
-def update_task(task_id):
-    result = {
-        "code": 1,
-        "data": None,
-        "msg": "update_task_ok"
-    }
-    # check params
-    if not task_id.isdigit():
-        result["code"] = 0
-        result["msg"] = "task_id not numbers"
-        return jsonify(result)
-    paramsDic = request.json
-    params = json.loads(json.dumps(paramsDic))
+#     with DB.auto_commit():
+#         task = TASK.query.filter_by(task_id=task_id).first_or_404()
+#         if 'extent' in params:  # user-inputed unnecessary extent
+#             task.extent = params['extent']
+#         if 'user_id' in params:
+#             task.user_id = params['user_id']
+#         if 'state' in params:
+#             task.state = params['state']
+#         if 'status' in params:
+#             task.status = params['status']
+#         DB.session.add(task)
+#         return jsonify(result)
 
-    with DB.auto_commit():
-        task = TASK.query.filter_by(task_id=task_id).first_or_404()
-        if 'extent' in params:  # user-inputed unnecessary extent
-            task.extent = params['extent']
-        if 'user_id' in params:
-            task.user_id = params['user_id']
-        if 'state' in params:
-            task.state = params['state']
-        if 'status' in params:
-            task.status = params['status']
-        DB.session.add(task)
-        return jsonify(result)
-
-# 删除任务id=1的信息
+# 删除任务
 @api.route('/<task_id>', methods=['DELETE'])
 def delete_task(task_id):
     result = {
         "code": 1,
         "data": None,
-        "msg": "ok"
+        "msg": "删除任务成功"
     }
     # check params
     if not task_id.isdigit():
         result["code"] = 0
-        result["msg"] = "task_id not numbers"
+        result["msg"] = "task_id不是整型"
         return jsonify(result)
 
     with DB.auto_commit():
