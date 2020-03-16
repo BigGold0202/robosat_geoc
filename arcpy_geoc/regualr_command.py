@@ -9,6 +9,10 @@ startTime = time.clock()
 
 arcpy.env.workspace = SETTING.DATA_PATH
 
+envTime = time.clock()
+print ("envTime:" + str(envTime-startTime))
+
+
 config_path = SETTING.DATA_PATH + "config.txt"
 
 with open(config_path, 'r') as f:
@@ -32,10 +36,12 @@ def reguar():
                                               max_radius=1000000)
     except arcpy.ExecuteError:
         print(arcpy.GetMessages())
-    endTime = time.clock()
 
+    endTime = time.clock()
     print("end regular")
     print ("spendssss:" + str(endTime-startTime))
+    print("okka")
+    return "okkkb"
 
 
 if __name__ == "__main__":

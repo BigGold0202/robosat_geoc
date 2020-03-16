@@ -21,13 +21,30 @@ def hello_world():
 
 @app.route('/regularize', methods=['GET'])
 def wmts():
+    print("start flask")
+    result = {
+        "code": 1,
+        "data": None,
+        "msg": "ok"
+    }
     path = request.args.get("path")
     with open(config_path, 'w') as f:
         f.write(path)
         f.close()
-    p = subprocess.call([SETTING.CONFIG_ARCPY, command_path])
-    print(p)
-    return "ok"
+    # FNULL = open(os.devnull, 'w')
+    try:
+        proc = subprocess.check_output(
+            [SETTING.CONFIG_ARCPY, command_path], stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError:
+        print(subprocess.STDOUT)
+    print(proc)
+    if not proc or "Failed" in proc:
+        result['code'] = 0
+        result['msg'] = 'execute arcpy command failed.'
+    if "regularized.shp already exists" in proc:
+        result['code'] = 1
+        result['msg'] = 'regularized.shp already exists.'
+    return result
 
 
 if __name__ == '__main__':
