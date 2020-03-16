@@ -24,13 +24,16 @@ def onegeojson():
         result["msg"] = "task_id缺失"
         return jsonify(result)
     sql = '''select st_asgeojson(geom),gid from "BUIA" where gid in (select a.gid from predict_buildings as a where task_id ={task_id}) '''
+    sql = '''SELECT jsonb_build_object ( 'type', 'FeatureCollection', 'features', jsonb_agg ( features.feature ) ) 
+  FROM (SELECT jsonb_build_object ( 'type', 'Feature', 'id', gid, 'geometry', ST_AsGeoJSON ( geom ) :: jsonb, 'properties', to_jsonb ( inputs ) - 'geom' ) AS feature 
+         FROM ( SELECT gid,geom AS geom FROM "predict_buildings" WHERE task_id = {task_id}) inputs) features; '''
     queryData = queryBySQL(sql.format(task_id=task_id))
     if not queryData:
         result["code"] = 0
         result["msg"] = "查询语句有问题"
         return jsonify(result)
-    row = queryData.fetchall()
-    result["data"] = row
+    row = queryData.fetchone()
+    result["data"] = row[0]
 
     return jsonify(result)
 
