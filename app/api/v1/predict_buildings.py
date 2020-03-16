@@ -23,7 +23,7 @@ def onegeojson():
         result["code"] = 0
         result["msg"] = "task_id缺失"
         return jsonify(result)
-    sql = '''select * from "BUIA" where gid in (select a.gid from predict_buildings as a where task_id ={task_id}) '''
+    sql = '''select st_asgeojson(geom),gid from "BUIA" where gid in (select a.gid from predict_buildings as a where task_id ={task_id}) '''
     queryData = queryBySQL(sql.format(task_id=task_id))
     if not queryData:
         result["code"] = 0
@@ -42,7 +42,7 @@ def get(gid):
         "data": None,
         "msg": "ok"
     }
-    sql = '''select st_asgeojson(geom) as geojson from predict_buildings WHERE gid ={gid}'''
+    sql = '''select st_asgeojson(geom),gid as geojson from predict_buildings WHERE gid ={gid}'''
     queryData = queryBySQL(sql.format(gid=gid))
     if not queryData:
         result["code"] = 0
