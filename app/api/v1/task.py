@@ -96,7 +96,7 @@ def get_task_list():
         result["code"] = 0
         result["msg"] = "area_code not numbers"
         return jsonify(result)
-    if not user_id.isdigit():
+    if user_id and not user_id.isdigit():
         result["code"] = 0
         result["msg"] = "user_id not numbers"
         return jsonify(result)
@@ -120,7 +120,7 @@ def get_task_list():
     for row in rows:
         d = dict(row.items())
         if row.state == 1:
-        # 查询目前排队情况
+            # 查询目前排队情况
             sql_order = '''select task_id from task where state = 1 ORDER BY task_id LIMIT 1'''
             queryData_order = queryBySQL(sql_order)  # 参数format
             first_task = queryData_order.fetchone()
