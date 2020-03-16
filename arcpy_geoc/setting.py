@@ -6,4 +6,4 @@ CONFIG_ARCPY = 'C:\\Python27\\ArcGIS10.6\\python.exe'
 
 CONFIG_PATH_TXT = DATA_PATH + "config.txt"
 
-COMMAND_FILE = "regualr_command.py"
+COMMAND_FILE = "regular_command.py"
