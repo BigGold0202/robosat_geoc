@@ -181,7 +181,7 @@ def insert_buildings(geojsonObj):
         newBuild.extent = feature["properties"]['extent']
         newBuild.user_id = feature["properties"]['user_id']
         newBuild.area_code = feature["properties"]['area_code']
-        newBuild.handler = feature["properties"]['handler']
+        # newBuild.handler = feature["properties"]['handler']
         newBuild.geom = wkb.dumps(geometry).hex()
         buildings.append(newBuild)
 
