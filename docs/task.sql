@@ -4,6 +4,7 @@ CREATE TABLE "public"."task" (
   "extent" varchar(255) COLLATE "pg_catalog"."default",
   "user_id" varchar(50),
   "area_code" varchar(50),
+  "handler" varchar(50) COLLATE "pg_catalog"."default",
   "state" int2 DEFAULT 1,
   "status" int2 DEFAULT 1,
   "created_at" timestamp(6) DEFAULT CURRENT_TIMESTAMP,

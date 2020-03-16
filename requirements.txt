@@ -30,3 +30,6 @@ geomet
 # libspatialindex
 torch>=1.2.0
 torchvision>=0.4.0
+geomet>=0.2.1.post1
+fiona>=1.8.11
+pyshp>=2.1.0

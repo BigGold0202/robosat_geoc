@@ -3,7 +3,7 @@ from flask import jsonify, request
 from app.models.base import queryBySQL, db as DB
 from app.models.task import task as TASK
 from app.libs.redprint import Redprint
-from app.config import setting as CONFIG
+from app.config import setting as SETTING
 from app.api.v1 import tools as TOOLS
 import json
 import time
@@ -250,7 +250,7 @@ def delete_task(task_id):
 
 
 def get_one_job():
-    sql = '''SELECT task_id, extent, user_id, state, created_at, updated_at from task WHERE STATE =1 ORDER BY created_at ASC LIMIT 1'''
+    sql = '''SELECT task_id, extent, user_id, state, area_code, created_at, updated_at from task WHERE STATE =1 ORDER BY created_at ASC LIMIT 1'''
     queryData = queryBySQL(sql)
     row = queryData.fetchone()
     if row:
@@ -264,7 +264,7 @@ def do_job(task_id, state):
         task = TASK.query.filter_by(task_id=task_id).first_or_404()
         if task:
             if state == 2:
-                IPADDR = CONFIG.IPADDR
+                IPADDR = SETTING.IPADDR
                 task.handler = IPADDR
             elif state == 3:
                 task.end_at = time.strftime(
@@ -274,7 +274,7 @@ def do_job(task_id, state):
 
 
 def doing_job():
-    IPADDR = CONFIG.IPADDR
+    IPADDR = SETTING.IPADDR
     sql = '''SELECT * FROM "task" where state='2' and handler='''+"'" + IPADDR + "'"
     queryData = queryBySQL(sql)
     row = queryData.fetchone()
