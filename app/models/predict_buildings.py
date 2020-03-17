@@ -13,4 +13,3 @@ class PredictBuildings(Base):
     area_code = Column(String(50))
     state = Column(Integer, default=1)
     status = Column(Integer, default=1)
-    handler = Column(String(50))
