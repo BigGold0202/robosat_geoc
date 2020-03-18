@@ -198,34 +198,34 @@ def get_task_by_id(task_id):
 
     return jsonify(result)
 
-# # 更新任务
-# @api.route('/<task_id>', methods=['POST'])
-# def update_task(task_id):
-#     result = {
-#         "code": 1,
-#         "data": None,
-#         "msg": "update_task_ok"
-#     }
-#     # check params
-#     if not task_id.isdigit():
-#         result["code"] = 0
-#         result["msg"] = "task_id not numbers"
-#         return jsonify(result)
-#     paramsDic = request.json
-#     params = json.loads(json.dumps(paramsDic))
+# 更新任务
+@api.route('/<task_id>', methods=['POST'])
+def update_task(task_id):
+    result = {
+        "code": 1,
+        "data": None,
+        "msg": "任务更新成功"
+    }
+    # check params
+    if not task_id.isdigit():
+        result["code"] = 0
+        result["msg"] = "task_id not numbers"
+        return jsonify(result)
+    paramsDic = request.json
+    params = json.loads(json.dumps(paramsDic))
 
-#     with DB.auto_commit():
-#         task = TASK.query.filter_by(task_id=task_id).first_or_404()
-#         if 'extent' in params:  # user-inputed unnecessary extent
-#             task.extent = params['extent']
-#         if 'user_id' in params:
-#             task.user_id = params['user_id']
-#         if 'state' in params:
-#             task.state = params['state']
-#         if 'status' in params:
-#             task.status = params['status']
-#         DB.session.add(task)
-#         return jsonify(result)
+    with DB.auto_commit():
+        task = TASK.query.filter_by(task_id=task_id).first_or_404()
+        if 'extent' in params:  # 更新条目自定义
+            task.extent = params['extent']
+        if 'user_id' in params:
+            task.user_id = params['user_id']
+        if 'state' in params:
+            task.state = params['state']
+        if 'status' in params:
+            task.status = params['status']
+        DB.session.add(task)
+        return jsonify(result)
 
 # 删除任务
 @api.route('/<task_id>', methods=['DELETE'])
