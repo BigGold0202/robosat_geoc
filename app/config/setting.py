@@ -9,7 +9,7 @@ URL_TDT = '''https://t1.tianditu.gov.cn/DataServer?T=img_w&x={x}&y={y}&l={z}&tk=
 URL_GOOGLE = '''http://ditu.google.cn/maps/vt/lyrs=s&x={x}&y={y}&z={z}'''
 # URL_TDT = '''http://yingxiang2019.geo-compass.com/api/wmts?layer=s%3Azjw&style=time%3D1576222648262&tilematrixset=w&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fjpeg&TileMatrix={z}&TileCol={x}&TileRow={y}&threshold=100'''
 
-ARCPY_HOST = "http://172.16.105.33:5001/regularize?path={path}"
+ARCPY_HOST = "http://172.16.105.155:5001/regularize?path={path}"
 
 # config.toml and checkpoint.pth files path
 ROBOSAT_DATA_PATH = "/data/datamodel"
