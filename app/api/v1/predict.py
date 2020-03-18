@@ -60,7 +60,11 @@ def predict_job(task):
     geojson_predcit = RSPpredict.main(
         extent, dataPath, dsPredictPath, map="google")
 
+<<<<<<< HEAD
     if not geojson or not isinstance(geojson, dict) or 'features' not in geojson:
+=======
+    if not geojson_predcit or not isinstance(geojson_predcit, dict) or 'features' not in geojson_predcit:
+>>>>>>> a173d195d734dab1c14579df55072741b5dcaded
         result["code"] = 0
         result["msg"] = "预测失败"
         return result
@@ -77,9 +81,10 @@ def predict_job(task):
     # site:https://pro.arcgis.com/zh-cn/pro-app/tool-reference/3d-analyst/regularize-building-footprint.htm
     shp_regularized = dsPredictPath + "/regularized.shp"
     # TODO
-    arcpy_result = request.get(
-        SETTING.ARCPY_HOST.format(path="predict_"+str(ts)))
-    if not arcpy_result:
+    arcpy_requests = requests.get(
+        SETTING.ARCPY_HOST.format(path="predict_" + str(ts)))
+    arcpy_result = arcpy_requests.json()
+    if arcpy_result['code'] == 0:
         result["code"] = 0
         result["msg"] = "arcpy regularize faild."
         return result
@@ -93,8 +98,8 @@ def predict_job(task):
 
     # 给geojson添加properties
     handler = SETTING.IPADDR
-    # for feature in geojson4326["features"]:
-    for feature in geojson_predcit["features"]:
+    # for feature in geojson_predcit["features"]:
+    for feature in geojson4326["features"]:
         feature["properties"] = {
             "task_id": task.task_id,
             "extent": task.extent,

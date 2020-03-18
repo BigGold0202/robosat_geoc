@@ -10,7 +10,7 @@ import json
 
 api = Redprint('predict_buildings')
 
-
+#获取任务建筑物
 @api.route("", methods=['GET'])
 def onegeojson():
     result = {
@@ -24,35 +24,16 @@ def onegeojson():
         result["msg"] = "task_id缺失"
         return jsonify(result)
     sql = '''select st_asgeojson(geom),gid from "BUIA" where gid in (select a.gid from predict_buildings as a where task_id ={task_id}) '''
+    sql = '''SELECT jsonb_build_object ( 'type', 'FeatureCollection', 'features', jsonb_agg ( features.feature ) ) 
+  FROM (SELECT jsonb_build_object ( 'type', 'Feature', 'id', gid, 'geometry', ST_AsGeoJSON ( geom ) :: jsonb, 'properties', to_jsonb ( inputs ) - 'geom' ) AS feature 
+         FROM ( SELECT gid,geom AS geom FROM "predict_buildings" WHERE task_id = {task_id} and status = 1) inputs) features; '''
     queryData = queryBySQL(sql.format(task_id=task_id))
     if not queryData:
         result["code"] = 0
         result["msg"] = "查询语句有问题"
         return jsonify(result)
-    row = queryData.fetchall()
-    result["data"] = row
-
-    return jsonify(result)
-
-
-@api.route("/<gid>", methods=['GET'])
-def get(gid):
-    result = {
-        "code": 1,
-        "data": None,
-        "msg": "ok"
-    }
-    sql = '''select st_asgeojson(geom),gid as geojson from predict_buildings WHERE gid ={gid}'''
-    queryData = queryBySQL(sql.format(gid=gid))
-    if not queryData:
-        result["code"] = 0
-        result["msg"] = "查询语句有问题"
-        return jsonify(result)
-    if queryData.rowcount == 0:
-        result["code"] = 0
-        result["msg"] = "未查询到内容"
-        return jsonify(result)
     row = queryData.fetchone()
+<<<<<<< HEAD
     if row['geojson']:
         result["data"] = json.loads(row["geojson"])
     else:
@@ -77,6 +58,13 @@ def delete_task(task_id):
         task = TASK.query.filter_by(task_id=task_id).first_or_404()
         task.delete()
         return jsonify(result)
+=======
+    result["data"] = row[0]
+
+    return jsonify(result)
+
+
+>>>>>>> a173d195d734dab1c14579df55072741b5dcaded
 
 # @api.route('', methods=['POST'])
 # def create_buildings(geojsonObj):
@@ -116,7 +104,7 @@ def update_buildings():
     result = {
         "code": 1,
         "data": None,
-        "msg": "ok"
+        "msg": "建筑物更新成功"
     }
     # check params
     if not request.json:
@@ -132,20 +120,20 @@ def update_buildings():
         result['msg'] = 'miss status.'
         return jsonify(result)
 
-    if 'ids' not in params and 'task_id' not in params:
+    if 'gids' not in params and 'task_id' not in params:
         result['code'] = 0
-        result['msg'] = 'miss ids or task_id.'
+        result['msg'] = 'miss gids or task_id.'
         return jsonify(result)
 
-    if 'ids' in params and 'task_id' in params:
+    if 'gids' in params and 'task_id' in params:
         result['code'] = 0
-        result['msg'] = 'both have ids and task_id.'
+        result['msg'] = 'both have gids and task_id.'
         return jsonify(result)
 
     status = params['status']
 
-    def updateBuildByIds(ids):
-        for gid in ids:
+    def updateBuildBygids(gids):
+        for gid in gids:
             build = PredictBuildings.query.filter_by(gid=gid).first_or_404()
             if not build:
                 continue
@@ -153,13 +141,13 @@ def update_buildings():
             with DB.auto_commit():
                 DB.session.add(build)
 
-    if "ids" in params:
-        ids = params['ids']
-        if not isinstance(ids, list):
+    if "gids" in params:
+        gids = params['gids']
+        if not isinstance(gids, list):
             result['code'] = 0
-            result['msg'] = 'ids not list type.'
+            result['msg'] = 'gids not list type.'
             return jsonify(result)
-        updateBuildByIds(ids)
+        updateBuildBygids(gids)
 
     if "task_id" in params:
         task_id = params['task_id']
@@ -178,15 +166,71 @@ def update_buildings():
             result["msg"] = "查询语句有问题"
             return jsonify(result)
         rows = queryData.fetchall()
-        ids = []
+        gids = []
         for row in rows:
             gid = row.gid
-            ids.append(gid)
-        updateBuildByIds(ids)
+            gids.append(gid)
+        updateBuildBygids(gids)
     return jsonify(result)
 
+# @api.route("/<gid>", methods=['GET'])
+# def get(gid):
+#     result = {
+#         "code": 1,
+#         "data": None,
+#         "msg": "ok"
+#     }
+#     sql = '''select st_asgeojson(geom),gid as geojson from predict_buildings WHERE gid ={gid}'''
+#     queryData = queryBySQL(sql.format(gid=gid))
+#     if not queryData:
+#         result["code"] = 0
+#         result["msg"] = "查询语句有问题"
+#         return jsonify(result)
+#     if queryData.rowcount == 0:
+#         result["code"] = 0
+#         result["msg"] = "未查询到内容"
+#         return jsonify(result)
+#     row = queryData.fetchone()
+#     if row['geojson']:
+#         result["data"] = json.loads(row["geojson"])
+#     else:
+#         result['data'] = None
+#     return jsonify(result)
 
-def insert_buildings(geojsonObj):
+
+# @api.route('', methods=['POST'])
+# def create_buildings(geojsonObj):
+#     result = {
+#         "code": 1,
+#         "data": None,
+#         "msg": "ok"
+#     }
+#     # check params
+#     if request.json:
+#         paramsDic = request.json
+#         params = json.loads(json.dumps(paramsDic))
+#         geojson = params['geojson']
+#     else:
+#         geojson = geojsonObj
+
+#     buildings = []
+#     for feature in geojson["features"]:
+#         # featureDump = json.dumps(feature)
+#         # newFeat = '{"type":"FeatureCollection","features":['+featureDump+']}'
+
+#         # newFeature = json.loads(newFeat)
+#         newBuild = PredictBuildings()
+#         newBuild.task_id = feature["properties"]['task_id']
+#         newBuild.extent = feature["properties"]['extent']
+#         newBuild.user_id = feature["properties"]['user_id']
+#         buildings.append(newBuild)
+
+#     # insert into
+#     with DB.auto_commit():
+#         DB.session.bulk_save_objects(buildings)
+#         return jsonify(result)
+
+def insert_buildings(geojsonObj): # reference: predict.py
     if not geojsonObj:
         return False
 
@@ -199,7 +243,7 @@ def insert_buildings(geojsonObj):
         newBuild.extent = feature["properties"]['extent']
         newBuild.user_id = feature["properties"]['user_id']
         newBuild.area_code = feature["properties"]['area_code']
-        newBuild.handler = feature["properties"]['handler']
+        # newBuild.handler = feature["properties"]['handler']
         newBuild.geom = wkb.dumps(geometry).hex()
         buildings.append(newBuild)
 

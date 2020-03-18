@@ -34,6 +34,8 @@ def geojson_project(collection, source, target):
               for feature in collection["features"]]
     features = []
     for shape in shapes:
+        if not shape.is_simple or not shape.is_valid:
+            continue
         projected = project(shape, source, target)
         feature = geojson.Feature(geometry=shapely.geometry.mapping(
             projected))
@@ -62,7 +64,6 @@ def shp2geojson(shp_path):
 def geojson2shp(collection, shp_path):
     shapes = [geometry.shape(feature["geometry"])
               for feature in collection["features"]]
-
     schema = {
         'geometry': 'Polygon',
         'properties': {},
@@ -71,6 +72,8 @@ def geojson2shp(collection, shp_path):
     # Write a new Shapefile
     with fiona.open(shp_path, 'w', 'ESRI Shapefile', schema) as c:
         for shape in shapes:
+            if shape.area < 100:
+                continue
             c.write({
                 'geometry': shapely.geometry.mapping(shape),
                 'properties': {},

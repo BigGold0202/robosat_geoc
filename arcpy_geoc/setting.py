@@ -1,7 +1,9 @@
-DATA_PATH = "W:/"
+# dataset path
+DATA_PATH = "C:\\Users\\WUCAN\\Documents\\dataset\\"
 
-CONFIG_ARCPY = 'C:\\Python27\\ArcGIS10.7\\python.exe'
+# arcpy path path
+CONFIG_ARCPY = 'C:\\Python27\\ArcGIS10.6\\python.exe'
 
 CONFIG_PATH_TXT = DATA_PATH + "config.txt"
 
-COMMAND_FILE = "regualr_command.py"
+COMMAND_FILE = "regular_command.py"
