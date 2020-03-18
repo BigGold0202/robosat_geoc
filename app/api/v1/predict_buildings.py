@@ -26,7 +26,7 @@ def onegeojson():
     sql = '''select st_asgeojson(geom),gid from "BUIA" where gid in (select a.gid from predict_buildings as a where task_id ={task_id}) '''
     sql = '''SELECT jsonb_build_object ( 'type', 'FeatureCollection', 'features', jsonb_agg ( features.feature ) ) 
   FROM (SELECT jsonb_build_object ( 'type', 'Feature', 'id', gid, 'geometry', ST_AsGeoJSON ( geom ) :: jsonb, 'properties', to_jsonb ( inputs ) - 'geom' ) AS feature 
-         FROM ( SELECT gid,geom AS geom FROM "predict_buildings" WHERE task_id = {task_id}) inputs) features; '''
+         FROM ( SELECT gid,geom AS geom FROM "predict_buildings" WHERE task_id = {task_id} and status = 1) inputs) features; '''
     queryData = queryBySQL(sql.format(task_id=task_id))
     if not queryData:
         result["code"] = 0
@@ -45,7 +45,7 @@ def update_buildings():
     result = {
         "code": 1,
         "data": None,
-        "msg": "建筑物删除成功"
+        "msg": "建筑物更新成功"
     }
     # check params
     if not request.json:
@@ -171,24 +171,24 @@ def update_buildings():
 #         DB.session.bulk_save_objects(buildings)
 #         return jsonify(result)
 
-# def insert_buildings(geojsonObj):
-#     if not geojsonObj:
-#         return False
+def insert_buildings(geojsonObj): # reference: predict.py
+    if not geojsonObj:
+        return False
 
-#     # geojson to buildings array
-#     buildings = []
-#     for feature in geojsonObj["features"]:
-#         geometry = feature['geometry']
-#         newBuild = PredictBuildings()
-#         newBuild.task_id = feature["properties"]['task_id']
-#         newBuild.extent = feature["properties"]['extent']
-#         newBuild.user_id = feature["properties"]['user_id']
-#         newBuild.area_code = feature["properties"]['area_code']
-#         # newBuild.handler = feature["properties"]['handler']
-#         newBuild.geom = wkb.dumps(geometry).hex()
-#         buildings.append(newBuild)
+    # geojson to buildings array
+    buildings = []
+    for feature in geojsonObj["features"]:
+        geometry = feature['geometry']
+        newBuild = PredictBuildings()
+        newBuild.task_id = feature["properties"]['task_id']
+        newBuild.extent = feature["properties"]['extent']
+        newBuild.user_id = feature["properties"]['user_id']
+        newBuild.area_code = feature["properties"]['area_code']
+        # newBuild.handler = feature["properties"]['handler']
+        newBuild.geom = wkb.dumps(geometry).hex()
+        buildings.append(newBuild)
 
-#     # insert into
-#     with DB.auto_commit():
-#         DB.session.bulk_save_objects(buildings)
-#         return True
+    # insert into
+    with DB.auto_commit():
+        DB.session.bulk_save_objects(buildings)
+        return True
