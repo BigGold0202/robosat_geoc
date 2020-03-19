@@ -16,7 +16,7 @@ def onegeojson():
     result = {
         "code": 1,
         "data": None,
-        "msg": "ok"
+        "msg": "显示任务图层"
     }
     task_id = request.args.get("task_id")
     if not task_id:
