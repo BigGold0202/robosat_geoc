@@ -26,7 +26,7 @@ def project(shape, source, target):
     return shapely.ops.transform(project, shape)
 
 
-def geojson_project(collection, source, target):
+def geojson_project(collection, source, target):# feature to shape,projection,shape to feature.yul
     # with open(geojson_path) as fp:
         # collection = geojson.load(fp)
 
@@ -52,7 +52,10 @@ def shp2geojson(shp_path):
     buffer = []
     for sr in reader.shapeRecords():
         atr = dict(zip(field_names, sr.record))
-        geom = sr.shape.__geo_interface__
+        try:
+            geom = sr.shape.__geo_interface__
+        except:
+            return
         buffer.append(dict(type="Feature",
                            geometry=geom, properties=atr))
 

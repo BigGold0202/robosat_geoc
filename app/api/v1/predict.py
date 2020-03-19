@@ -76,6 +76,11 @@ def predict_job(task):
     # regularize-building-footprint
     # site:https://pro.arcgis.com/zh-cn/pro-app/tool-reference/3d-analyst/regularize-building-footprint.htm
     shp_regularized = dsPredictPath + "/regularized.shp"
+    # dsPredictPath = datasetPath+"/predict_1584605424.2942991" # shape with null part for debugging
+    # shp_regularized = dsPredictPath + "/regularized_bad.shp"
+
+
+    shp_regularized = dsPredictPath + "/regularized.shp"
     # TODO
     arcpy_requests = requests.get(
         SETTING.ARCPY_HOST.format(path="predict_" + str(ts)))
