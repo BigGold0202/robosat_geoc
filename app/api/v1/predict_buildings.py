@@ -33,11 +33,70 @@ def onegeojson():
         result["msg"] = "查询语句有问题"
         return jsonify(result)
     row = queryData.fetchone()
+<<<<<<< HEAD
+    if row['geojson']:
+        result["data"] = json.loads(row["geojson"])
+    else:
+        result['data'] = None
+    return jsonify(result)
+
+# 删除建筑物
+@api.route('', methods=['DELETE'])
+def delete_task(task_id):
+    result = {
+        "code": 1,
+        "data": None,
+        "msg": "删除任务成功"
+    }
+    # check params
+    if not task_id.isdigit():
+        result["code"] = 0
+        result["msg"] = "task_id不是整型"
+        return jsonify(result)
+
+    with DB.auto_commit():
+        task = TASK.query.filter_by(task_id=task_id).first_or_404()
+        task.delete()
+        return jsonify(result)
+=======
     result["data"] = row[0]
 
     return jsonify(result)
 
 
+>>>>>>> a173d195d734dab1c14579df55072741b5dcaded
+
+# @api.route('', methods=['POST'])
+# def create_buildings(geojsonObj):
+#     result = {
+#         "code": 1,
+#         "data": None,
+#         "msg": "ok"
+#     }
+#     # check params
+#     if request.json:
+#         paramsDic = request.json
+#         params = json.loads(json.dumps(paramsDic))
+#         geojson = params['geojson']
+#     else:
+#         geojson = geojsonObj
+
+#     buildings = []
+#     for feature in geojson["features"]:
+#         # featureDump = json.dumps(feature)
+#         # newFeat = '{"type":"FeatureCollection","features":['+featureDump+']}'
+
+#         # newFeature = json.loads(newFeat)
+#         newBuild = PredictBuildings()
+#         newBuild.task_id = feature["properties"]['task_id']
+#         newBuild.extent = feature["properties"]['extent']
+#         newBuild.user_id = feature["properties"]['user_id']
+#         buildings.append(newBuild)
+
+#     # insert into
+#     with DB.auto_commit():
+#         DB.session.bulk_save_objects(buildings)
+#         return jsonify(result)
 
 
 @api.route('', methods=['POST'])
