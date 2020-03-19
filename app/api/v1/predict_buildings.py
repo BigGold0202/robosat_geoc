@@ -33,7 +33,6 @@ def onegeojson():
         result["msg"] = "查询语句有问题"
         return jsonify(result)
     row = queryData.fetchone()
-<<<<<<< HEAD
     if row['geojson']:
         result["data"] = json.loads(row["geojson"])
     else:
@@ -58,13 +57,6 @@ def delete_task(task_id):
         task = TASK.query.filter_by(task_id=task_id).first_or_404()
         task.delete()
         return jsonify(result)
-=======
-    result["data"] = row[0]
-
-    return jsonify(result)
-
-
->>>>>>> a173d195d734dab1c14579df55072741b5dcaded
 
 # @api.route('', methods=['POST'])
 # def create_buildings(geojsonObj):
