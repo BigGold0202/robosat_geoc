@@ -44,10 +44,10 @@ def main(args):
 
     def unbuffered(shape):
         projected = project(shape, "epsg:4326", "epsg:3857")
-        if int(round(projected.area)) < 200:
-            return None
-        # unbuffered = projected.buffer(-0.2 * args.threshold)
-        unprojected = project(projected, "epsg:3857", "epsg:4326")
+        # if int(round(projected.area)) < 100:
+        #     return None
+        unbuffered = projected.buffer(-1 * args.threshold)
+        unprojected = project(unbuffered, "epsg:3857", "epsg:4326")
         return unprojected
 
     for i, shape in enumerate(tqdm(shapes, desc="Building graph", unit="shapes", ascii=True)):
