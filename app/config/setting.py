@@ -10,12 +10,15 @@ URL_GOOGLE = '''http://ditu.google.cn/maps/vt/lyrs=s&x={x}&y={y}&z={z}'''
 # URL_TDT = '''http://yingxiang2019.geo-compass.com/api/wmts?layer=s%3Azjw&style=time%3D1576222648262&tilematrixset=w&Service=WMTS&Request=GetTile&Version=1.0.0&Format=image%2Fjpeg&TileMatrix={z}&TileCol={x}&TileRow={y}&threshold=100'''
 
 ARCPY_HOST = "http://172.16.105.155:5001/regularize?path={path}"
+# ARCPY_HOST = "http://localhost:5001/regularize?path={path}"
 
 # config.toml and checkpoint.pth files path
 ROBOSAT_DATA_PATH = "/data/datamodel"
+# ROBOSAT_DATA_PATH = "data"
 
 # dataset to training or predicting
 ROBOSAT_DATASET_PATH = "/data/dataset"
+# ROBOSAT_DATASET_PATH = "/mnt/c/Users/WUCAN/Documents/dataset"
 
 # ip address
 IPADDR = UTILS.get_host_ip()
@@ -24,3 +27,9 @@ IPADDR = UTILS.get_host_ip()
 MIN_T_EXTENT = 0.0042
 MIN_P_EXTENT = 0.0014
 MAX_P_EXTENT = 0.0098
+
+# minimum building area
+MIN_BUILDING_AREA = 50
+
+# if open debug mode
+DEBUG_MODE = true
