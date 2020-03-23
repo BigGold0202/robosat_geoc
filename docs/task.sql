@@ -10,7 +10,6 @@ CREATE TABLE "public"."task" (
   "created_at" timestamp(6) DEFAULT CURRENT_TIMESTAMP,
   "updated_at" timestamp(6) DEFAULT CURRENT_TIMESTAMP,
   "end_at" timestamp(6) DEFAULT CURRENT_TIMESTAMP,
-  "handler" varchar(255),
   CONSTRAINT "task_pkey" PRIMARY KEY ("task_id")
 )
 ;

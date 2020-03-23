@@ -8,6 +8,7 @@ import shapely.geometry
 
 from robosat_pink.spatial.core import make_index, project, union
 from robosat_pink.graph.core import UndirectedGraph
+from app.config import setting as SETTING
 
 
 def add_parser(subparser):
@@ -87,8 +88,8 @@ def main(args):
                 continue
 
             # equal-area projection; round to full m^2, we're not that precise anyway
-            area = int(round(project(merged, "epsg:4326", "esri:54009").area))
-            if area < 100:
+            area = int(round(project(merged, "epsg:4326", "epsg:3857").area))
+            if area < SETTING.MIN_BUILDING_AREA:
                 continue
 
             feature = geojson.Feature(geometry=shapely.geometry.mapping(

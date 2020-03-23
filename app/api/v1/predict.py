@@ -1,11 +1,12 @@
 import time
 import requests
-from app.libs import redprint, utils, utils_geom
+import json
+import shutil
 from flask import jsonify, request
+from app.libs import redprint, utils, utils_geom
 from app.config import setting as SETTING
 from robosat_pink.geoc import RSPpredict, RSPreturn_predict
 from app.api.v1 import tools as TOOLS, task as TASK, predict_buildings as BUILDINGS, job as JOB
-import json
 
 api = redprint.Redprint('predict')
 
@@ -107,6 +108,10 @@ def predict_job(task):
             "area_code": task.area_code,
             "handler": handler
         }
+
+    # delete temp dir after done job.
+    if SETTING.DEBUG_MODE:
+        shutil.rmtree(dsPredictPath)
 
     # 插入数据库
     result_create = BUILDINGS.insert_buildings(geojson4326)
