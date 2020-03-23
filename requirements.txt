@@ -25,7 +25,6 @@ requests>=2.18.4
 psycopg2>=2.8.3
 wtforms>=2.2.1
 sqlalchemy
-geomet
 # rtree
 # libspatialindex
 torch>=1.2.0
