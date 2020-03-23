@@ -52,9 +52,9 @@ def main(extent, dataPath, dsPath, map="google", auto_delete=False):
     )
     vectorize.main(params_vectorize)
 
-    # # 解析预测结果并返回
-    jsonFile = open(dsPath + "/vectors.json", 'r')
-    jsonObj = json.load(jsonFile)
+    # # # 解析预测结果并返回
+    # jsonFile = open(dsPath + "/vectors.json", 'r')
+    # jsonObj = json.load(jsonFile)
 
     # params_features = params.Features(
     #     masks=dsPath + "/masks",
@@ -68,16 +68,16 @@ def main(extent, dataPath, dsPath, map="google", auto_delete=False):
     # jsonFile = open(dsPath + "/features.json", 'r')
     # jsonObj = json.load(jsonFile)
 
-    # params_merge = params.Merge(
-    #     features=dsPath + "/features.json",
-    #     threshold=2,
-    #     out=dsPath + "/merged_features.json"
-    # )
-    # merge.main(params_merge)
+    params_merge = params.Merge(
+        features=dsPath + "/vectors.json",
+        threshold=2,
+        out=dsPath + "/merged_features.json"
+    )
+    merge.main(params_merge)
 
     # 解析预测结果并返回
-    # jsonFile = open(dsPath + "/merged_features.json", 'r')
-    # jsonObj = json.load(jsonFile)
+    jsonFile = open(dsPath + "/merged_features.json", 'r')
+    jsonObj = json.load(jsonFile)
 
     # if auto_delete:
     #     shutil.rmtree(dsPath)
