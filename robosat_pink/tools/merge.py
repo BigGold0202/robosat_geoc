@@ -8,6 +8,7 @@ import shapely.geometry
 
 from robosat_pink.spatial.core import make_index, project, union
 from robosat_pink.graph.core import UndirectedGraph
+from app.config import setting as SETTING
 
 
 def add_parser(subparser):
@@ -44,10 +45,10 @@ def main(args):
 
     def unbuffered(shape):
         projected = project(shape, "epsg:4326", "epsg:3857")
-        if int(round(projected.area)) < 200:
-            return None
-        # unbuffered = projected.buffer(-0.2 * args.threshold)
-        unprojected = project(projected, "epsg:3857", "epsg:4326")
+        # if int(round(projected.area)) < 100:
+        #     return None
+        unbuffered = projected.buffer(-1 * args.threshold)
+        unprojected = project(unbuffered, "epsg:3857", "epsg:4326")
         return unprojected
 
     for i, shape in enumerate(tqdm(shapes, desc="Building graph", unit="shapes", ascii=True)):
@@ -87,8 +88,8 @@ def main(args):
                 continue
 
             # equal-area projection; round to full m^2, we're not that precise anyway
-            area = int(round(project(merged, "epsg:4326", "esri:54009").area))
-            if area < 100:
+            area = int(round(project(merged, "epsg:4326", "epsg:3857").area))
+            if area < SETTING.MIN_BUILDING_AREA:
                 continue
 
             feature = geojson.Feature(geometry=shapely.geometry.mapping(
