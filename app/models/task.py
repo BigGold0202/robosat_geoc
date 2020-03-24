@@ -13,3 +13,4 @@ class task(Base):
     status = Column(Integer, default=1)
     end_at = Column(DateTime)
     handler = Column(Integer, default=1)
+    originalextent = Column(String(256))

@@ -55,11 +55,13 @@ def create_task():
             result['msg'] = '缺少必要的参数。'
             return jsonify(result)
         extent = params['extent']
+        originalExtent = params['originalExtent']
         user_id = params['user_id']
         area_code = params['area_code']
         with DB.auto_commit():
             task = TASK()
             task.extent = extent
+            task.originalextent = originalExtent
             task.user_id = user_id
             task.area_code = area_code
             DB.session.add(task)
@@ -102,7 +104,7 @@ def get_task_list():
         return jsonify(result)
     # 查询该用户所有任务
     start = (int(page) - 1) * int(count)
-    sql = '''SELECT task_id, extent, user_id, area_code, state, created_at, end_at from task WHERE status !=0 '''
+    sql = '''SELECT task_id, extent, originalextent, user_id, area_code, state, created_at, end_at from task WHERE status !=0 '''
     # if state:
     #     sql = sql + ''' AND state='''+"'"+state+"'"
     if user_id:
@@ -278,7 +280,7 @@ def job_listen():
     "data": None,
     "msg": "队列运行正常"
     }
-    sql = '''SELECT task_id from task WHERE STATE =2 and updated_at+ '6 minute' <now()'''
+    sql = '''SELECT task_id from task WHERE STATE =2 and updated_at+ '3 minute' <now()'''
     queryData = queryBySQL(sql)
     rows = queryData.fetchall()
     if rows:
@@ -286,9 +288,9 @@ def job_listen():
             task_id = row[0]
             with DB.auto_commit():
                 task = TASK.query.filter_by(task_id = task_id).first_or_404()
-                task.state = 1
+                task.state = 4
                 DB.session.add(task)
-            result['msg'] = '任务已重新排队'
+            result['msg'] = '任务已取消执行'
     else:
         return
     return result
