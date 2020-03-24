@@ -104,11 +104,7 @@ def get_task_list():
         return jsonify(result)
     # 查询该用户所有任务
     start = (int(page) - 1) * int(count)
-<<<<<<< HEAD
     sql = '''SELECT task_id, extent, originalextent, user_id, area_code, state, created_at, end_at from task WHERE status !=0 '''
-=======
-    sql = '''SELECT task_id, extent, originalExtent, user_id, area_code, state, created_at, end_at from task WHERE status !=0 '''
->>>>>>> 3b0b2003a6eaaf51deb93b380c651706e544ba1a
     # if state:
     #     sql = sql + ''' AND state='''+"'"+state+"'"
     if user_id:
