@@ -33,30 +33,27 @@ def onegeojson():
         result["msg"] = "查询语句有问题"
         return jsonify(result)
     row = queryData.fetchone()
-    if row['geojson']:
-        result["data"] = json.loads(row["geojson"])
-    else:
-        result['data'] = None
+    result['data'] = row[0]
     return jsonify(result)
 
-# 删除建筑物
-@api.route('', methods=['DELETE'])
-def delete_task(task_id):
-    result = {
-        "code": 1,
-        "data": None,
-        "msg": "删除任务成功"
-    }
-    # check params
-    if not task_id.isdigit():
-        result["code"] = 0
-        result["msg"] = "task_id不是整型"
-        return jsonify(result)
+# # 删除建筑物
+# @api.route('', methods=['DELETE'])
+# def delete_task(task_id):
+#     result = {
+#         "code": 1,
+#         "data": None,
+#         "msg": "删除任务成功"
+#     }
+#     # check params
+#     if not task_id.isdigit():
+#         result["code"] = 0
+#         result["msg"] = "task_id不是整型"
+#         return jsonify(result)
 
-    with DB.auto_commit():
-        task = TASK.query.filter_by(task_id=task_id).first_or_404()
-        task.delete()
-        return jsonify(result)
+#     with DB.auto_commit():
+#         task = TASK.query.filter_by(task_id=task_id).first_or_404()
+#         task.delete()
+#         return jsonify(result)
 
 # @api.route('', methods=['POST'])
 # def create_buildings(geojsonObj):
