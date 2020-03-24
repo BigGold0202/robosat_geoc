@@ -132,12 +132,12 @@ def get_task_list():
         else:
             d['rank'] = None
         # 调整originalExtent格式:'x1,y1,x2,y2'->[[x1,y1],[x2,y2]]
-        if d['originalextent'] != None:
-            orgnl_extent_list = d['originalextent'].split(',')
-            [coorsx1,coorsy1] = [float(orgnl_extent_list[0]),float(orgnl_extent_list[1])]
-            [coorsx2,coorsy2] = [float(orgnl_extent_list[2]),float(orgnl_extent_list[3])]
-            d['originalextent'] = [[coorsx1,coorsy1],[coorsx2,coorsy2]]
-            d['originalextent'] = str(d['originalextent'])
+        # if d['originalextent'] != None:
+        #     orgnl_extent_list = d['originalextent'].split(',')
+        #     [coorsx1,coorsy1] = [float(orgnl_extent_list[0]),float(orgnl_extent_list[1])]
+        #     [coorsx2,coorsy2] = [float(orgnl_extent_list[2]),float(orgnl_extent_list[3])]
+        #     d['originalextent'] = [[coorsx1,coorsy1],[coorsx2,coorsy2]]
+        #     d['originalextent'] = str(d['originalextent'])
         tasks.append(d)
     result['data'] = tasks
 
