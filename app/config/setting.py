@@ -32,4 +32,4 @@ MAX_P_EXTENT = 0.0098
 MIN_BUILDING_AREA = 50
 
 # if open debug mode
-DEBUG_MODE = true
+DEBUG_MODE = True
