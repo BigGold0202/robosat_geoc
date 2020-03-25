@@ -50,15 +50,15 @@ def shp2geojson(shp_path):
     fields = reader.fields[1:]
     field_names = [field[0] for field in fields]
     buffer = []
+    # shapeRecords = reader.shapeRecords()
     for sr in reader.shapeRecords():
         atr = dict(zip(field_names, sr.record))
         try:
             geom = sr.shape.__geo_interface__
-        except:
-            return
-        buffer.append(dict(type="Feature",
+            buffer.append(dict(type="Feature",
                            geometry=geom, properties=atr))
-
+        except:
+            print ('要素不可用。要素信息：%s'%str(sr.record)) 
     jsonstr = json.dumps({"type": "FeatureCollection",
                           "features": buffer}, indent=2)
     return json.loads(jsonstr)
