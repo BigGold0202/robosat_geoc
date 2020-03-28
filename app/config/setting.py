@@ -18,6 +18,7 @@ ROBOSAT_DATA_PATH = "/data/datamodel"
 
 # dataset to training or predicting
 ROBOSAT_DATASET_PATH = "/data/dataset"
+# ROBOSAT_DATASET_PATH = "dataset"
 # ROBOSAT_DATASET_PATH = "/mnt/c/Users/WUCAN/Documents/dataset"
 
 # ip address

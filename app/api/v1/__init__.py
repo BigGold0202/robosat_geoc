@@ -1,5 +1,5 @@
 from flask import Blueprint
-from app.api.v1 import test, predict_buildings, buia, train, predict, wmts, geojson, tools, task, job
+from app.api.v1 import test, predict_buildings, buia, train, predict, wmts, geojson, tools, task, taskbat, job
 
 
 def create_blueprint_v1():
@@ -11,6 +11,7 @@ def create_blueprint_v1():
     predict.api.register(bp_v1)
     predict_buildings.api.register(bp_v1)
     task.api.register(bp_v1)
+    taskbat.api.register(bp_v1)
     test.api.register(bp_v1)
     train.api.register(bp_v1)
     tools.api.register(bp_v1)

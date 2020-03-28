@@ -48,10 +48,16 @@ def predict():
 
 
 def predict_job(task):
+    result = {
+        "code": 1,
+        "data": None,
+        "msg": "do job success"
+    }
     extent = task.extent
-    result = TOOLS.check_extent(extent, "predict", True)
-    if result["code"] == 0:
-        return result
+    if task.user_id != "ADMIN":
+        result = TOOLS.check_extent(extent, "predict", True)
+        if result["code"] == 0:
+            return result
 
     # 使用robosat_geoc开始预测
     dataPath = SETTING.ROBOSAT_DATA_PATH

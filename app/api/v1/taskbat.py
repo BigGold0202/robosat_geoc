@@ -1,15 +1,11 @@
 # import json
 from flask import jsonify, request
 from app.models.base import queryBySQL, db as DB
-# from app.models.task import task as TASK
+from app.models.task import task as TASK
 from app.libs.redprint import Redprint
-# from app.config import setting as SETTING
-# from app.api.v1 import tools as TOOLS
 from robosat_pink.geojson import geojson_parse_feature
 import json
 from rasterio.warp import transform_bounds
-# import time
-# import sys
 import collections
 from mercantile import tiles, xy_bounds
 
@@ -50,20 +46,24 @@ def create_task_by_areacode():
 
         cover = feature_map.keys()
 
-    _cover = []
-    extent_w, extent_s, extent_n, extent_e = (180.0, 90.0, -180.0, -90.0)
+    extents = []
     for tile in cover:
         w, s, n, e = transform_bounds(
             "epsg:3857", "epsg:4326", *xy_bounds(tile))
-        _cover.append(tile)
+        extent = [w, s, n, e]
+        extents.append(','.join([str(elem) for elem in extent]))
 
-    cover = _cover
+    for extent in extents:
+        originalExtent = extent
+        user_id = "ADMIN"
+        area_code = "admin_"+areacode
+        with DB.auto_commit():
+            task = TASK()
+            task.extent = extent
+            task.originalextent = originalExtent
+            task.user_id = user_id
+            task.area_code = area_code
+            DB.session.add(task)
 
     result['data'] = cover
     return jsonify(result)
-
-
-# if __name__ == "__main__":
-#     areacode = '110108'
-#     create_task_by_areacode(areacode)
-#     pass

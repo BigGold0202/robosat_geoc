@@ -6,7 +6,8 @@ from app.libs.redprint import Redprint
 from app.config import setting as SETTING
 from app.api.v1 import tools as TOOLS
 import json
-import time, sys
+import time
+import sys
 
 api = Redprint('task')
 
@@ -281,11 +282,12 @@ def do_job(task_id, state):
             task.state = state
             DB.session.add(task)
 
+
 def job_listen():
     result = {
-    "code": 1,
-    "data": None,
-    "msg": "队列运行正常"
+        "code": 1,
+        "data": None,
+        "msg": "队列运行正常"
     }
     sql = '''SELECT task_id from task WHERE STATE =2 and updated_at+ '3 minute' <now()'''
     queryData = queryBySQL(sql)
@@ -294,13 +296,14 @@ def job_listen():
         for row in rows:
             task_id = row[0]
             with DB.auto_commit():
-                task = TASK.query.filter_by(task_id = task_id).first_or_404()
+                task = TASK.query.filter_by(task_id=task_id).first_or_404()
                 task.state = 4
                 DB.session.add(task)
             result['msg'] = '任务已取消执行'
     else:
         return
     return result
+
 
 def doing_job():
     IPADDR = SETTING.IPADDR
