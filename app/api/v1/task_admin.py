@@ -9,11 +9,8 @@ from robosat_pink.geojson import geojson_parse_feature
 from app.models.base import queryBySQL, db as DB
 from app.libs.redprint import Redprint
 from app.config import setting as SETTING
+from app.models.task_admin import task_admin as TASK_ADMIN
 
-if SETTING.USER_OR_ADMIN == "USER":
-    from app.models.task import task as TASK
-else:
-    from app.models.task_admin import task_admin as TASK
 
 api = Redprint('task_admin')
 
@@ -28,29 +25,45 @@ def create_task_by_areacode():
     areacode = request.args.get('areacode')
     zoom = request.args.get('zoom') or 14
 
-    if areacode:
-        sql = """
-             SELECT 
-               '{{"type": "Feature", "geometry": ' 
-               || ST_AsGeoJSON(st_simplify(geom,0.001)) 
-               || '}}' AS features 
-             FROM quhua_xian WHERE code = '{areacode}'
-            """
-        queryData = queryBySQL(sql.format(areacode=areacode))
-        if not queryData:
-            result["code"] = 0
-            result["msg"] = "not found this area,areacode:"+areacode
-            return jsonify(result)
-        area_json = queryData.fetchone()
+    if not areacode:
+        result['code'] = 0
+        result['msg'] = "no areacode params"
+        return jsonify(result)
+    quhuaTable = 'quhua_xian'
+    if len(areacode) == 6:
+        quhuaTable = "quhua_xian"
+    elif len(areacode) == 4:
+        quhuaTable = "quhua_shi"
+    elif len(areacode) == 2:
+        quhuaTable = "quhua_sheng"
+    else:
+        result['code'] = 0
+        result['msg'] = "areacode not support"
+        return jsonify(result)
 
-        feature_map = collections.defaultdict(list)
+    sql = """
+            SELECT 
+            '{{"type": "Feature", "geometry": ' 
+            || ST_AsGeoJSON(st_simplify(geom,0.001)) 
+            || '}}' AS features 
+            FROM {quhuaTable} WHERE code = '{areacode}'
+        """
+    queryData = queryBySQL(sql.format(
+        areacode=areacode, quhuaTable=quhuaTable))
+    if not queryData:
+        result["code"] = 0
+        result["msg"] = "not found this area,areacode:"+areacode
+        return jsonify(result)
+    area_json = queryData.fetchone()
 
-        # FIXME: fetchall will not always fit in memory...
-        for feature in area_json:
-            feature_map = geojson_parse_feature(
-                zoom, 4326, feature_map, json.loads(feature))
+    feature_map = collections.defaultdict(list)
 
-        cover = feature_map.keys()
+    # FIXME: fetchall will not always fit in memory...
+    for feature in area_json:
+        feature_map = geojson_parse_feature(
+            zoom, 4326, feature_map, json.loads(feature))
+
+    cover = feature_map.keys()
 
     extents = []
     for tile in cover:
@@ -62,14 +75,17 @@ def create_task_by_areacode():
     for extent in extents:
         originalExtent = extent
         user_id = "ADMIN"
-        area_code = "admin_"+areacode
+        area_code = areacode
         with DB.auto_commit():
-            task = TASK()
+            task = TASK_ADMIN()
             task.extent = extent
             task.originalextent = originalExtent
             task.user_id = user_id
             task.area_code = area_code
             DB.session.add(task)
 
-    result['data'] = cover
+    result['data'] = {
+        "count": len(extents),
+        "extent": extents
+    }
     return jsonify(result)
