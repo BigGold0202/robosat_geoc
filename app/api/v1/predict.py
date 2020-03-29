@@ -30,15 +30,11 @@ def predict():
         # extent, dataPath, dsPredictPath, map="tdt")
         extent, dataPath, dsPredictPath, map="google")
 
-    # dsPredictPath = datasetPath+"/return_predict_"+str(ts)
-    # geojson = RSPreturn_predict.main(
-    #     extent
-    #     )
-
     if not geojson:
         result["code"] = 0
         result["msg"] = "预测失败"
         return jsonify(result)
+
     # 给geojson添加properties
     for feature in geojson["features"]:
         feature["properties"] = {}
@@ -83,11 +79,7 @@ def predict_job(task):
     # regularize-building-footprint
     # site:https://pro.arcgis.com/zh-cn/pro-app/tool-reference/3d-analyst/regularize-building-footprint.htm
     shp_regularized = dsPredictPath + "/regularized.shp"
-    # dsPredictPath = datasetPath+"/predict_1584605424.2942991" # shape with null part for debugging
-    # shp_regularized = dsPredictPath + "/regularized_bad.shp"
-
     shp_regularized = dsPredictPath + "/regularized.shp"
-    # TODO
     arcpy_requests = requests.get(
         SETTING.ARCPY_HOST.format(path="predict_" + str(ts)))
     arcpy_result = arcpy_requests.json()

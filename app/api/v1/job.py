@@ -1,10 +1,9 @@
-import json
 from flask import jsonify, request
 from flask_apscheduler import APScheduler
+import json
 from app.models.base import queryBySQL, db as DB
 from app.api.v1 import task as TASK, predict as PREDICT
 from app.libs.redprint import Redprint
-import json
 
 api = Redprint('job')
 
@@ -13,17 +12,25 @@ scheduler = APScheduler()
 
 @scheduler.task(trigger='interval', id='predict_job', seconds=5)
 def task_job():
+    # check doing failed job.
     TASK.job_listen()
+
+    # check doing job by this server
     isDoingJob = TASK.doing_job()
     if isDoingJob:
         return
+
+    # get one new job
     newTask = TASK.get_one_job()
     if not newTask:
         return
+
     # start one job
     print("start one job.")
     TASK.do_job(newTask.task_id, 2)  # update task state
+    # do the predict by robosat
     result = PREDICT.predict_job(newTask)
+
     if result['code'] == 0:
         TASK.do_job(newTask.task_id, 4)  # 任务失败
         print('job faild！')

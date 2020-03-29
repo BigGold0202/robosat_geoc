@@ -1,15 +1,21 @@
 # import json
 from flask import jsonify, request
-from app.models.base import queryBySQL, db as DB
-from app.models.task import task as TASK
-from app.libs.redprint import Redprint
-from robosat_pink.geojson import geojson_parse_feature
 import json
-from rasterio.warp import transform_bounds
 import collections
+from rasterio.warp import transform_bounds
 from mercantile import tiles, xy_bounds
 
-api = Redprint('taskbat')
+from robosat_pink.geojson import geojson_parse_feature
+from app.models.base import queryBySQL, db as DB
+from app.libs.redprint import Redprint
+from app.config import setting as SETTING
+
+if SETTING.USER_OR_ADMIN == "USER":
+    from app.models.task import task as TASK
+else:
+    from app.models.task_admin import task_admin as TASK
+
+api = Redprint('task_admin')
 
 
 @api.route('', methods=['GET'])

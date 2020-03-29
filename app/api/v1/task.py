@@ -9,6 +9,13 @@ import json
 import time
 import sys
 
+taskTable = "task"
+if SETTING.USER_OR_ADMIN == "USER":
+    from app.models.task import task as TASK
+else:
+    from app.models.task_admin import task_admin as TASK
+    taskTable = "task_admin"
+
 api = Redprint('task')
 
 # 新建任务
@@ -105,7 +112,7 @@ def get_task_list():
         return jsonify(result)
     # 查询该用户所有任务
     start = (int(page) - 1) * int(count)
-    sql = '''SELECT task_id, extent, originalextent, user_id, area_code, state, created_at, end_at from task WHERE status !=0 '''
+    sql = '''SELECT task_id, extent, originalextent, user_id, area_code, state, created_at, end_at from {task} WHERE status !=0 '''
     # if state:
     #     sql = sql + ''' AND state='''+"'"+state+"'"
     if user_id:
@@ -113,7 +120,8 @@ def get_task_list():
     if area_code:
         sql = sql + ''' AND area_code='''+"'"+area_code+"'"
     sql = sql + ''' ORDER BY updated_at desc LIMIT {count} OFFSET {start}'''
-    queryData = queryBySQL(sql.format(start=start, count=count))  # 参数format
+    queryData = queryBySQL(sql.format(
+        task=taskTable, start=start, count=count))  # 参数format
     if not queryData:
         result["code"] = 0
         result["msg"] = "查询语句有问题"
@@ -124,8 +132,9 @@ def get_task_list():
         d = dict(row.items())
         if row.state == 1:
             # 查询目前排队情况
-            sql_order = '''select task_id from task where state = 1 ORDER BY task_id LIMIT 1'''
-            queryData_order = queryBySQL(sql_order)  # 参数format
+            sql_order = '''select task_id from {task} where state = 1 ORDER BY task_id LIMIT 1'''
+            queryData_order = queryBySQL(
+                sql_order.format(task=taskTable))  # 参数format
             first_task = queryData_order.fetchone()
             if first_task:
                 first_id = first_task.task_id
@@ -152,8 +161,8 @@ def get_job_num():
         "data": None,
         "msg": "任务数量查询成功"
     }
-    sql = '''SELECT count(*) from task WHERE state = 1 or state =2'''
-    queryData = queryBySQL(sql)
+    sql = '''SELECT count(*) from {task} WHERE state = 1 or state =2'''
+    queryData = queryBySQL(sql.format(task=taskTable))
     if not queryData:
         result["code"] = 0
         result["msg"] = "查询语句有问题"
@@ -171,8 +180,8 @@ def get_processing_job():
         "data": None,
         "msg": "任务查询成功"
     }
-    sql = '''SELECT task_id,user_id from task WHERE state =2'''  # ,task.created_at 返回任务创建时间
-    queryData = queryBySQL(sql)
+    sql = '''SELECT task_id,user_id from {task} WHERE state =2'''  # ,task.created_at 返回任务创建时间
+    queryData = queryBySQL(sql.format(task=taskTable))
     if not queryData:
         result["code"] = 0
         result["msg"] = "查询语句有问题"
@@ -197,8 +206,8 @@ def get_task_by_id(task_id):
         result["msg"] = "task_id not numbers"
         return jsonify(result)
 
-    sql = '''SELECT task_id, extent, user_id, state, created_at, updated_at from task  WHERE task_id = {task_id}'''
-    queryData = queryBySQL(sql.format(task_id=task_id))
+    sql = '''SELECT task_id, extent, user_id, state, created_at, updated_at from {task}  WHERE task_id = {task_id}'''
+    queryData = queryBySQL(sql.format(task=taskTable, task_id=task_id))
     if not queryData:
         result["code"] = 0
         result["msg"] = "查询语句有问题"
@@ -226,6 +235,11 @@ def update_task(task_id):
 
     with DB.auto_commit():
         task = TASK.query.filter_by(task_id=task_id).first_or_404()
+        if not task:
+            result["code"] = 0
+            result["msg"] = "task not found."
+            return jsonify(result)
+
         if 'extent' in params:  # 更新条目自定义
             task.extent = params['extent']
         if 'user_id' in params:
@@ -253,6 +267,10 @@ def delete_task(task_id):
 
     with DB.auto_commit():
         task = TASK.query.filter_by(task_id=task_id).first_or_404()
+        if not task:
+            result["code"] = 0
+            result["msg"] = "task not found."
+            return jsonify(result)
         task.delete()
         return jsonify(result)
 
@@ -260,8 +278,8 @@ def delete_task(task_id):
 
 
 def get_one_job():
-    sql = '''SELECT task_id, extent, user_id, state, area_code, created_at, updated_at from task WHERE STATE =1 ORDER BY created_at ASC LIMIT 1'''
-    queryData = queryBySQL(sql)
+    sql = '''SELECT task_id, extent, user_id, state, area_code, created_at, updated_at from {task} WHERE STATE =1 ORDER BY created_at ASC LIMIT 1'''
+    queryData = queryBySQL(sql.format(task=taskTable))
     row = queryData.fetchone()
     if row:
         return row
@@ -282,33 +300,29 @@ def do_job(task_id, state):
             task.state = state
             DB.session.add(task)
 
+# if job state stay doing more than 3 minutes, then failded.
+
 
 def job_listen():
-    result = {
-        "code": 1,
-        "data": None,
-        "msg": "队列运行正常"
-    }
-    sql = '''SELECT task_id from task WHERE STATE =2 and updated_at+ '3 minute' <now()'''
-    queryData = queryBySQL(sql)
+    sql = '''SELECT task_id from {task} WHERE STATE =2 and updated_at+ '5 minute' <now()'''
+    queryData = queryBySQL(sql.format(task=taskTable))
     rows = queryData.fetchall()
     if rows:
         for row in rows:
             task_id = row[0]
             with DB.auto_commit():
                 task = TASK.query.filter_by(task_id=task_id).first_or_404()
+                if not task:
+                    continue
                 task.state = 4
                 DB.session.add(task)
-            result['msg'] = '任务已取消执行'
-    else:
-        return
-    return result
 
 
 def doing_job():
     IPADDR = SETTING.IPADDR
-    sql = '''SELECT * FROM "task" where state='2' and handler='''+"'" + IPADDR + "'"
-    queryData = queryBySQL(sql)
+    sql = '''SELECT * FROM "{task}" where state='2' and handler=''' + \
+        "'" + IPADDR + "'"
+    queryData = queryBySQL(sql.format(task=taskTable))
     row = queryData.fetchone()
     if row:
         return True
