@@ -13,3 +13,7 @@ ds
 dp
 data/model
 dataset
+out.log
+.vscode/launch.json
+.env
+log

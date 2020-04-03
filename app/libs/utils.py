@@ -1,6 +1,4 @@
 import socket
-import fcntl
-import struct
 
 
 def get_host_ip():
@@ -12,3 +10,7 @@ def get_host_ip():
         s.close()
 
     return ip
+
+
+# if __name__ == "__main__":
+#     pass

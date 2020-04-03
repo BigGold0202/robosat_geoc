@@ -1,12 +1,14 @@
 import time
-from app.libs.redprint import Redprint
+import requests
+import json
+import shutil
 from flask import jsonify, request
+from app.libs import redprint, utils, utils_geom
 from app.config import setting as SETTING
 from robosat_pink.geoc import RSPpredict, RSPreturn_predict
 from app.api.v1 import tools as TOOLS, task as TASK, predict_buildings as BUILDINGS, job as JOB
-import json
 
-api = Redprint('predict')
+api = redprint.Redprint('predict')
 
 
 @api.route('', methods=['GET'])
@@ -28,15 +30,11 @@ def predict():
         # extent, dataPath, dsPredictPath, map="tdt")
         extent, dataPath, dsPredictPath, map="google")
 
-    # dsPredictPath = datasetPath+"/return_predict_"+str(ts)
-    # geojson = RSPreturn_predict.main(
-    #     extent
-    #     )
-
     if not geojson:
         result["code"] = 0
         result["msg"] = "预测失败"
         return jsonify(result)
+
     # 给geojson添加properties
     for feature in geojson["features"]:
         feature["properties"] = {}
@@ -46,33 +44,75 @@ def predict():
 
 
 def predict_job(task):
+    result = {
+        "code": 1,
+        "data": None,
+        "msg": "do job success"
+    }
     extent = task.extent
-    result = TOOLS.check_extent(extent, "predict", True)
-    if result["code"] == 0:
-        return result
+    if task.user_id != "ADMIN":
+        result = TOOLS.check_extent(extent, "predict", True)
+        if result["code"] == 0:
+            return result
 
     # 使用robosat_geoc开始预测
     dataPath = SETTING.ROBOSAT_DATA_PATH
     datasetPath = SETTING.ROBOSAT_DATASET_PATH
     ts = time.time()
     dsPredictPath = datasetPath+"/predict_"+str(ts)
-    geojson = RSPpredict.main(
+    geojson_predcit = RSPpredict.main(
         extent, dataPath, dsPredictPath, map="google")
 
-    if not geojson:
+    if not geojson_predcit or not isinstance(geojson_predcit, dict) or 'features' not in geojson_predcit:
         result["code"] = 0
         result["msg"] = "预测失败"
         return result
+
+    # 转换为3857坐标系
+    geojson3857 = utils_geom.geojson_project(
+        geojson_predcit, "epsg:4326", "epsg:3857")
+
+    # geojson 转 shapefile
+    shp3857 = dsPredictPath+"/building3857.shp"
+    utils_geom.geojson2shp(geojson3857, shp3857)
+
+    # regularize-building-footprint
+    # site:https://pro.arcgis.com/zh-cn/pro-app/tool-reference/3d-analyst/regularize-building-footprint.htm
+    shp_regularized = dsPredictPath + "/regularized.shp"
+    shp_regularized = dsPredictPath + "/regularized.shp"
+    arcpy_requests = requests.get(
+        SETTING.ARCPY_HOST.format(path="predict_" + str(ts)))
+    arcpy_result = arcpy_requests.json()
+    if arcpy_result['code'] == 0:
+        result["code"] = 0
+        result["msg"] = "arcpy regularize faild."
+        return result
+
+    # shp to geojson
+    geojson3857 = utils_geom.shp2geojson(shp_regularized)
+
+    # project from 3857 to 4326
+    geojson4326 = utils_geom.geojson_project(
+        geojson3857, "epsg:3857", "epsg:4326")
+
     # 给geojson添加properties
-    for feature in geojson["features"]:
+    handler = SETTING.IPADDR
+    # for feature in geojson_predcit["features"]:
+    for feature in geojson4326["features"]:
         feature["properties"] = {
             "task_id": task.task_id,
             "extent": task.extent,
-            "user_id": task.user_id
+            "user_id": task.user_id,
+            "area_code": task.area_code,
+            "handler": handler
         }
 
+    # delete temp dir after done job.
+    if SETTING.DEBUG_MODE:
+        shutil.rmtree(dsPredictPath)
+
     # 插入数据库
-    result_create = BUILDINGS.insert_buildings(geojson)
+    result_create = BUILDINGS.insert_buildings(geojson4326)
     if not result_create:
         result["code"] = 0
         result["msg"] = "预测失败"

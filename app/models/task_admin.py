@@ -1,15 +1,16 @@
-from sqlalchemy import Column, String, Boolean, Integer, ForeignKey, Text
+from sqlalchemy import Column, String, Boolean, Integer, ForeignKey, Text, DateTime
 from sqlalchemy.orm import relationship
 
 from app.models.base import Base
 
 
-class PredictBuildings(Base):
-    gid = Column(Integer, primary_key=True, autoincrement=True)
-    geom = Column(Text)
+class task_admin(Base):
     task_id = Column(Integer, primary_key=True)
     extent = Column(String(256))
     user_id = Column(String(50))
     area_code = Column(String(50))
     state = Column(Integer, default=1)
     status = Column(Integer, default=1)
+    end_at = Column(DateTime)
+    handler = Column(Integer, default=1)
+    originalextent = Column(String(256))

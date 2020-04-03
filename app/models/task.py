@@ -6,7 +6,6 @@ from app.models.base import Base
 
 class task(Base):
     task_id = Column(Integer, primary_key=True)
-    job_id = Column(Integer)
     extent = Column(String(256))
     user_id = Column(String(50))
     area_code = Column(String(50))
@@ -14,3 +13,4 @@ class task(Base):
     status = Column(Integer, default=1)
     end_at = Column(DateTime)
     handler = Column(Integer, default=1)
+    originalextent = Column(String(256))
