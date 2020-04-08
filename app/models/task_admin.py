@@ -12,5 +12,6 @@ class task_admin(Base):
     state = Column(Integer, default=1)
     status = Column(Integer, default=1)
     end_at = Column(DateTime)
-    handler = Column(Integer, default=1)
+    handler = Column(String(50), default=1)
     originalextent = Column(String(256))
+    updated_at = Column(DateTime)

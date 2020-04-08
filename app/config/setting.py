@@ -4,7 +4,8 @@ from app.libs import utils as UTILS
 BUILDINGS_TABLE = "BUIA"
 
 # USER OR ADMIN MODE
-USER_OR_ADMIN = "USER"
+# USER_OR_ADMIN ="USER"
+USER_OR_ADMIN = "admin"
 
 ARCPY_HOST = "http://172.16.105.155:5001/regularize?path={path}"
 # ARCPY_HOST = "http://localhost:5001/regularize?path={path}"
@@ -38,4 +39,5 @@ MAX_P_EXTENT = 0.0098
 MIN_BUILDING_AREA = 50
 
 # if open debug mode
-DEBUG_MODE = True
+# DEBUG_MODE = True
+DEBUG_MODE = False

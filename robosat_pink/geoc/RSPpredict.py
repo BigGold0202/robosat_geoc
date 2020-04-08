@@ -52,6 +52,12 @@ def main(extent, dataPath, dsPath, map="google", auto_delete=False):
     )
     vectorize.main(params_vectorize)
 
+    jsonFile = open(dsPath + "/vectors.json", 'r')
+    jsonObj = json.load(jsonFile)
+    if jsonObj["features"]==[]:
+        return jsonObj  
+
+
     # # # 解析预测结果并返回
     # jsonFile = open(dsPath + "/vectors.json", 'r')
     # jsonObj = json.load(jsonFile)
