@@ -23,11 +23,16 @@ def onegeojson():
         result["code"] = 0
         result["msg"] = "task_id缺失"
         return jsonify(result)
+    sql = '''SELECT updated_at from predict_buildings where task_id = {task_id} order by updated_at desc limit 1'''
+    queryData = queryBySQL(sql.format(task_id=task_id))
+    row = queryData.fetchone()
+    updated_at = row[0]
+    
     sql = '''select st_asgeojson(geom),gid from "BUIA" where gid in (select a.gid from predict_buildings as a where task_id ={task_id}) '''
     sql = '''SELECT jsonb_build_object ( 'type', 'FeatureCollection', 'features', jsonb_agg ( features.feature ) ) 
   FROM (SELECT jsonb_build_object ( 'type', 'Feature', 'id', gid, 'geometry', ST_AsGeoJSON ( geom ) :: jsonb, 'properties', to_jsonb ( inputs ) - 'geom' ) AS feature 
-         FROM ( SELECT gid,geom AS geom FROM "predict_buildings" WHERE task_id = {task_id} and status = 1) inputs) features; '''
-    queryData = queryBySQL(sql.format(task_id=task_id))
+         FROM ( SELECT gid,geom AS geom FROM "predict_buildings" WHERE task_id = {task_id} and updated_at = {updated_at} and status = 1) inputs) features; '''
+    queryData = queryBySQL(sql.format(task_id=task_id, updated_at = updated_at))
     if not queryData:
         result["code"] = 0
         result["msg"] = "查询语句有问题"
