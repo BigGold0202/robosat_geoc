@@ -69,17 +69,16 @@ def predict_job(task):
         return result
 
     # 转换为3857坐标系
-    geojson3857 = utils_geom.geojson_project(
-        geojson_predcit, "epsg:4326", "epsg:3857")
+    # geojson3857 = utils_geom.geojson_project(
+    #     geojson_predcit, "epsg:4326", "epsg:3857")
 
     # geojson 转 shapefile
-    shp3857 = dsPredictPath+"/building3857.shp"
-    utils_geom.geojson2shp(geojson3857, shp3857)
+    building_predcit_path = dsPredictPath+"/building1_predict.shp"
+    utils_geom.geojson2shp(geojson_predcit, building_predcit_path)
 
     # regularize-building-footprint
     # site:https://pro.arcgis.com/zh-cn/pro-app/tool-reference/3d-analyst/regularize-building-footprint.htm
-    shp_regularized = dsPredictPath + "/regularized.shp"
-    shp_regularized = dsPredictPath + "/regularized.shp"
+    shp_regularized = dsPredictPath + "/building5_4326.shp"
     arcpy_requests = requests.get(
         SETTING.ARCPY_HOST.format(path="predict_" + str(ts)))
     arcpy_result = arcpy_requests.json()
@@ -89,11 +88,11 @@ def predict_job(task):
         return result
 
     # shp to geojson
-    geojson3857 = utils_geom.shp2geojson(shp_regularized)
+    geojson4326 = utils_geom.shp2geojson(shp_regularized)
 
     # project from 3857 to 4326
-    geojson4326 = utils_geom.geojson_project(
-        geojson3857, "epsg:3857", "epsg:4326")
+    # geojson4326 = utils_geom.geojson_project(
+    #     geojson3857, "epsg:3857", "epsg:4326")
 
     # 给geojson添加properties
     handler = SETTING.IPADDR
