@@ -278,7 +278,8 @@ def delete_task(task_id):
 
 
 def get_one_job():
-    sql = '''SELECT task_id, extent, user_id, state, area_code, created_at, updated_at from {task} WHERE STATE =1 ORDER BY created_at ASC LIMIT 1'''
+    # sql = '''SELECT task_id, extent, user_id, state, area_code, updated_at from {task} WHERE STATE =1 ORDER BY task_id ASC LIMIT 1'''
+    sql = '''SELECT * from {task} WHERE STATE =1 ORDER BY task_id ASC LIMIT 1'''
     queryData = queryBySQL(sql.format(task=taskTable))
     row = queryData.fetchone()
     if row:

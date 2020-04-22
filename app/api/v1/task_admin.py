@@ -23,24 +23,25 @@ def create_task_by_areacode():
         "msg": "create bat task success！"
     }
     areacode = request.args.get('areacode')
-    zoom = request.args.get('zoom') or 14
+    zoom = request.args.get('zoom') or 14 #将区域范围分割成zoom级别瓦片大小的任务
 
     if not areacode:
         result['code'] = 0
         result['msg'] = "no areacode params"
         return jsonify(result)
-    quhuaTable = 'quhua_xian'
+    quhuaTable = 'data_xian'
     if len(areacode) == 6:
-        quhuaTable = "quhua_xian"
+        quhuaTable = "data_xian"
     elif len(areacode) == 4:
-        quhuaTable = "quhua_shi"
+        quhuaTable = "data_shi"
     elif len(areacode) == 2:
-        quhuaTable = "quhua_sheng"
+        quhuaTable = "data_sheng"
     else:
         result['code'] = 0
         result['msg'] = "areacode not support"
         return jsonify(result)
 
+    areacode = areacode.ljust(12,'0') 
     sql = """
             SELECT 
             '{{"type": "Feature", "geometry": ' 
@@ -73,13 +74,13 @@ def create_task_by_areacode():
         extents.append(','.join([str(elem) for elem in extent]))
 
     for extent in extents:
-        originalExtent = extent
+        # originalExtent = extent
         user_id = "ADMIN"
         area_code = areacode
         with DB.auto_commit():
             task = TASK_ADMIN()
             task.extent = extent
-            task.originalextent = originalExtent
+            # task.originalextent = originalExtent
             task.user_id = user_id
             task.area_code = area_code
             DB.session.add(task)

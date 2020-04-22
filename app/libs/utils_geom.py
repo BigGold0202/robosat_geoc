@@ -26,7 +26,8 @@ def project(shape, source, target):
     return shapely.ops.transform(project, shape)
 
 
-def geojson_project(collection, source, target):# feature to shape,projection,shape to feature.yul
+# feature to shape,projection,shape to feature.yul
+def geojson_project(collection, source, target):
     # with open(geojson_path) as fp:
         # collection = geojson.load(fp)
 
@@ -56,9 +57,9 @@ def shp2geojson(shp_path):
         try:
             geom = sr.shape.__geo_interface__
             buffer.append(dict(type="Feature",
-                           geometry=geom, properties=atr))
+                               geometry=geom, properties=atr))
         except:
-            print ('要素不可用。要素信息：%s'%str(sr.record)) 
+            print('要素不可用。要素信息：%s' % str(sr.record))
     jsonstr = json.dumps({"type": "FeatureCollection",
                           "features": buffer}, indent=2)
     return json.loads(jsonstr)
@@ -75,14 +76,15 @@ def geojson2shp(collection, shp_path):
     # Write a new Shapefile
     with fiona.open(shp_path, 'w', 'ESRI Shapefile', schema) as c:
         for shape in shapes:
-            if shape.area < 100:
+            # delete area smaller than 0.00**1
+            if shape.area < 0.00000001:
                 continue
             c.write({
                 'geometry': shapely.geometry.mapping(shape),
                 'properties': {},
             })
     # Write a prj file
-    prj_str = '''PROJCS["WGS_1984_Web_Mercator_Auxiliary_Sphere",GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Mercator_Auxiliary_Sphere"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",0.0],PARAMETER["Standard_Parallel_1",0.0],PARAMETER["Auxiliary_Sphere_Type",0.0],UNIT["Meter",1.0]]'''
+    prj_str = '''GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137,298.257223563]],PRIMEM["Greenwich",0],UNIT["Degree",0.017453292519943295]]'''
     prj_path = shp_path.replace('.shp', '.prj')
     with open(prj_path, 'w') as f:
         f.write(prj_str)
