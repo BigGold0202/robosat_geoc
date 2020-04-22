@@ -119,7 +119,7 @@ def get_task_list():
         sql = sql + ''' AND user_id='''+"'"+user_id+"'"
     if area_code:
         sql = sql + ''' AND area_code='''+"'"+area_code+"'"
-    sql = sql + ''' ORDER BY updated_at desc LIMIT {count} OFFSET {start}'''
+    sql = sql + ''' ORDER BY created_at desc LIMIT {count} OFFSET {start}'''
     queryData = queryBySQL(sql.format(
         task=taskTable, start=start, count=count))  # 参数format
     if not queryData:
