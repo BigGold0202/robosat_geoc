@@ -31,7 +31,7 @@ def onegeojson():
     sql = '''select st_asgeojson(geom),gid from "BUIA" where gid in (select a.gid from predict_buildings as a where task_id ={task_id}) '''
     sql = '''SELECT jsonb_build_object ( 'type', 'FeatureCollection', 'features', jsonb_agg ( features.feature ) ) 
   FROM (SELECT jsonb_build_object ( 'type', 'Feature', 'id', gid, 'geometry', ST_AsGeoJSON ( geom ) :: jsonb, 'properties', to_jsonb ( inputs ) - 'geom' ) AS feature 
-         FROM ( SELECT gid,geom AS geom FROM "predict_buildings" WHERE task_id = {task_id} and updated_at = {updated_at} and status = 1) inputs) features; '''
+         FROM ( SELECT gid, (ST_DUMP(geom)).geom::geometry(Polygon)as geom FROM "predict_buildings" WHERE task_id = '{task_id}' and updated_at = '{updated_at}' and status = 1) inputs) features; '''
     queryData = queryBySQL(sql.format(task_id=task_id, updated_at = updated_at))
     if not queryData:
         result["code"] = 0
