@@ -23,26 +23,37 @@ def create_task_by_areacode():
         "msg": "create bat task success！"
     }
     areacode = request.args.get('areacode')
-    zoom = request.args.get('zoom') or 14 #将区域范围分割成zoom级别瓦片大小的任务
+    zoom = request.args.get('zoom') or 14  # 将区域范围分割成zoom级别瓦片大小的任务
 
     if not areacode:
         result['code'] = 0
         result['msg'] = "no areacode params"
         return jsonify(result)
-    quhuaTable = 'data_xian'
+    quhuaTable = ''
+    if len(areacode) == 9:
+        quhuaTable = SETTING.QUHUA_XIANG
     if len(areacode) == 6:
-        quhuaTable = "data_xian"
+        quhuaTable = SETTING.QUHUA_XIAN
     elif len(areacode) == 4:
-        quhuaTable = "data_shi"
+        quhuaTable = SETTING.QUHUA_SHI
     elif len(areacode) == 2:
-        quhuaTable = "data_sheng"
+        quhuaTable = SETTING.QUHUA_SHENG
     else:
         result['code'] = 0
         result['msg'] = "areacode not support"
         return jsonify(result)
 
-    areacode = areacode.ljust(12,'0') 
-    sql = """
+    areacode = areacode.ljust(12, '0')
+    if len(areacode) <= 4:
+        sql = """
+            SELECT 
+            '{{"type": "Feature", "geometry": ' 
+            || ST_AsGeoJSON(st_simplify(geom,0.001)) 
+            || '}}' AS features 
+            FROM {quhuaTable} WHERE "AREA_CODE" = '{areacode}'
+        """
+    elif len(areacode) >= 6:
+        sql = """
             SELECT 
             '{{"type": "Feature", "geometry": ' 
             || ST_AsGeoJSON(st_simplify(geom,0.001)) 

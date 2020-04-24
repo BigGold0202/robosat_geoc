@@ -4,10 +4,15 @@ from app.libs import utils as UTILS
 BUILDINGS_TABLE = "BUIA"
 
 # USER OR ADMIN MODE
-# USER_OR_ADMIN ="USER"
-USER_OR_ADMIN = "admin"
+USER_OR_ADMIN = "USER"
+# USER_OR_ADMIN = "admin"
 
-ARCPY_HOST = "http://172.16.105.155:5001/regularize?path={path}"
+QUHUA_SHENG = "data_1741"
+QUHUA_SHI = "data_1745"
+QUHUA_XIAN = "data_1746"
+QUHUA_XIANG = "data_1744"
+
+ARCPY_HOST = "http://172.16.105.70:5001/regularize?path={path}"
 # ARCPY_HOST = "http://localhost:5001/regularize?path={path}"
 
 # config.toml and checkpoint.pth files path
