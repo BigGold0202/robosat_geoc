@@ -24,7 +24,8 @@ def create_task_by_areacode():
     }
     areacode = request.args.get('areacode')
     zoom = request.args.get('zoom') or 14  # 将区域范围分割成zoom级别瓦片大小的任务
-
+    zoom = eval(zoom)
+    
     if not areacode:
         result['code'] = 0
         result['msg'] = "no areacode params"
@@ -44,22 +45,13 @@ def create_task_by_areacode():
         return jsonify(result)
 
     areacode = areacode.ljust(12, '0')
-    if len(areacode) <= 4:
-        sql = """
-            SELECT 
-            '{{"type": "Feature", "geometry": ' 
-            || ST_AsGeoJSON(st_simplify(geom,0.001)) 
-            || '}}' AS features 
-            FROM {quhuaTable} WHERE "AREA_CODE" = '{areacode}'
-        """
-    elif len(areacode) >= 6:
-        sql = """
-            SELECT 
-            '{{"type": "Feature", "geometry": ' 
-            || ST_AsGeoJSON(st_simplify(geom,0.001)) 
-            || '}}' AS features 
-            FROM {quhuaTable} WHERE code = '{areacode}'
-        """
+    sql = """
+        SELECT 
+        '{{"type": "Feature", "geometry": ' 
+        || ST_AsGeoJSON(st_simplify(geom,0.001)) 
+        || '}}' AS features 
+        FROM {quhuaTable} WHERE code = '{areacode}'
+    """
     queryData = queryBySQL(sql.format(
         areacode=areacode, quhuaTable=quhuaTable))
     if not queryData:
