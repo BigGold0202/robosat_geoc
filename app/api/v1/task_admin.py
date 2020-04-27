@@ -23,7 +23,7 @@ def create_task_by_areacode():
         "msg": "create bat task success！"
     }
     areacode = request.args.get('areacode')
-    zoom = request.args.get('zoom') or 14  # 将区域范围分割成zoom级别瓦片大小的任务
+    zoom = request.args.get('zoom') or '14'  # 将区域范围分割成zoom级别瓦片大小的任务
     zoom = eval(zoom)
     
     if not areacode:
@@ -31,9 +31,9 @@ def create_task_by_areacode():
         result['msg'] = "no areacode params"
         return jsonify(result)
     quhuaTable = ''
-    if len(areacode) == 9:
+    if len(areacode) == 9:#FIXME:bug when null areacode
         quhuaTable = SETTING.QUHUA_XIANG
-    if len(areacode) == 6:
+    elif len(areacode) == 6:
         quhuaTable = SETTING.QUHUA_XIAN
     elif len(areacode) == 4:
         quhuaTable = SETTING.QUHUA_SHI
