@@ -10,7 +10,7 @@ class JSONEncoder(_JSONEncoder):
         if hasattr(o, 'keys') and hasattr(o, '__getitem__'):
             return dict(o)
         if isinstance(o, date):
-            return o.strftime('%Y-%m-%d %H-%M-%s')
+            return o.strftime('%Y-%m-%d %H:%M:%S')
         raise ServerError()
 
 
