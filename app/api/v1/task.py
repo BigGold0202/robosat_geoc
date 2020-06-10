@@ -132,7 +132,7 @@ def get_task_list():
         d = dict(row.items())
         if row.state == 1:
             # 查询目前排队情况
-            sql_order = '''select task_id from {task} where state = 1 ORDER BY task_id LIMIT 1'''
+            sql_order = '''select task_id from {task} where state = 1 and status = 1 ORDER BY task_id LIMIT 1'''
             queryData_order = queryBySQL(
                 sql_order.format(task=taskTable))  # 参数format
             first_task = queryData_order.fetchone()
@@ -279,7 +279,7 @@ def delete_task(task_id):
 
 def get_one_job():
     # sql = '''SELECT task_id, extent, user_id, state, area_code, updated_at from {task} WHERE STATE =1 ORDER BY task_id ASC LIMIT 1'''
-    sql = '''SELECT * from {task} WHERE STATE =1 ORDER BY task_id ASC LIMIT 1'''
+    sql = '''SELECT * from {task} WHERE STATE =1 and status =1 ORDER BY task_id ASC LIMIT 1'''
     queryData = queryBySQL(sql.format(task=taskTable))
     row = queryData.fetchone()
     if row:
